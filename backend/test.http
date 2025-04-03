@@ -1,0 +1,42 @@
+###RECUPERAR TODOS LOS ALUMNOS
+
+###ENLISTAR TODOS LOS ALUMNOS
+GET http://localhost:4000/alumnos
+
+### CREAR UN NUEVO ALUMNO
+POST http://localhost:4000/alumnos
+Content-Type: application/json
+
+{
+    "dni": "99988888",
+    "nombre": "Armando",
+    "apellido_paterno": "Maradona",
+    "apellido_materno": "Messi",
+    "correo": "maradonamessi@gmail.com",
+    "fecha_nacimiento": "2010-10-10"
+}
+
+
+### EDITAR UN ALUMNO
+PATCH  http://localhost:4000/alumnos/2
+Content-Type: application/json
+
+{
+    "dni": "99978596",
+    "nombre": "Armando",
+    "apellido_paterno": "Coello",
+    "apellido_materno": "Messi",
+    "correo": "maradonacoello@gmail.com",
+    "fecha_nacimiento": "2010-10-10"
+}
+
+### ELIMINAR UN ALUMNO
+DELETE  http://localhost:4000/alumnos/3
+
+
+
+
+
+
+
+
