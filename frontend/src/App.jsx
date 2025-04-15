@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import SignsInUP from './Components/login/SignsInUP';
 import DashComp from './Components/dashboard/DashComp';
+import AlumnoCrud from './Components/alumno/AlumnoCrud';
 import ProtectedRoute from './Components/Auth/ProtectedRoute';
 import './App.css';
 
@@ -11,7 +12,10 @@ function App() {
     <Router>
       <Routes>
         <Route path='/' element={<SignsInUP/>} />
-        <Route path='/dashboard' element={<ProtectedRoute element={DashComp}/>}/>
+        <Route path='/inicio' element={<ProtectedRoute element={DashComp}/>}/>
+        <Route path='/estudiantes' element={<ProtectedRoute element={AlumnoCrud}/>}></Route>
+        <Route path='/estudiantes/:id' element={<ProtectedRoute element={AlumnoCrud}/>}></Route>
+        {/* <Route path='/docente' element={<ProtectedRoute element={}/>}></Route> */}
       </Routes>
     </Router>
   );

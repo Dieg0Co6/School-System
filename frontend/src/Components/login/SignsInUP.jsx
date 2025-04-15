@@ -26,7 +26,7 @@ function SignsInUP() {
                                 Si ya tienes una cuenta, inicia sesión aquí
                             </p>
                             <button
-                                className="ghost"
+                                className="bg-white text-red-500 font-bold py-3 px-8 rounded-full shadow-lg hover:bg-red-100 hover:text-red-600 hover:scale-105 transition-all duration-300 border-2 border-white mt-4"
                                 id="signIn"
                                 onClick={() => handleOnClick("signIn")}
                             >
@@ -39,7 +39,7 @@ function SignsInUP() {
                                 Regístrate para disfrutar de nuestra plataforma
                             </p>
                             <button
-                                className="ghost "
+                                className="bg-white text-red-500 font-bold py-3 px-8 rounded-full shadow-lg hover:bg-red-100 hover:text-red-600 hover:scale-105 transition-all duration-300 border-2 border-white mt-4"
                                 id="signUp"
                                 onClick={() => handleOnClick("signUp")}
                             >

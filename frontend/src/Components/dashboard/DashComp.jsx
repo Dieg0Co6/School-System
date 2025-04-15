@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import AppLayout from './../AppLayout';
+import AppLayout from '../AppLayout';
 /* import "bootstrap/dist/css/bootstrap.min.css"; */
 import {
     FaBars
@@ -44,7 +44,7 @@ function DashComp() {
               </svg>
             </div>
           </div>
-          <p className="text-sm text-gray-500 mb-1">Estudiantes Totales</p>
+          <p className="text-sm text-gray-500 mb-1">Profesores Totales</p>
           <h3 className="text-2xl font-bold text-gray-800 mb-2">1,285</h3>
           <p className="flex items-center text-sm text-green-600">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">

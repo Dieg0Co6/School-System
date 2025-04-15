@@ -32,7 +32,7 @@ function SignUpForm() {
     return (
         <div className="form-container sign-up-container">
             <form className="bg-white flex items-center justify-center flex-col px-[50px] h-full text-center" onSubmit={handleOnSubmit}>
-                <h1 className="font-bold m-0">Crea una Cuenta</h1>
+                <h1 className="font-bold m-0 text-2xl">Crea una Cuenta</h1>
                 <div className="my-5 flex justify-between w-50 mx-auto">
                     <a href="#" className="border border-gray-300 rounded-full inline-flex justify-center items-center mx-1 h-10 w-10 text-gray-800 text-sm no-underline my-[15px] social">
                         <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" class="bi bi-facebook" viewBox="0 0 16 16">

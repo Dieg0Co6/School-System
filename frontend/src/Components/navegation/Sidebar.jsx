@@ -95,8 +95,8 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                 <Link
                   to={item.path}
                   className={`flex items-center px-4 py-3 text-sm rounded-lg transition-colors ${isActive
-                      ? 'bg-red-500 text-white font-medium'
-                      : 'text-gray-700 hover:bg-red-50 hover:text-red-500'
+                      ? 'bg-red-200 text-white font-medium'
+                      : 'text-gray-700 hover:bg-red-50'
                     }`}
                 >
                   <span className="mr-3">{item.icon}</span>

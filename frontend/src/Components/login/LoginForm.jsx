@@ -23,7 +23,7 @@ function LoginForm() {
             );
 
             if (response.status === 200) {
-                navigate("/dashboard"); // Redirige al dashboard después de un login exitoso
+                navigate("/inicio"); // Redirige al dashboard después de un login exitoso
             }
         } catch (err) {
             // Manejar errores de autenticación
@@ -41,7 +41,7 @@ function LoginForm() {
     return (
         <div className="absolute top-0 h-full transition-all duration-[600ms] ease-in-out left-0 w-1/2 z-20">
             <form className="bg-white flex items-center justify-center flex-col px-[50px] h-full text-center" onSubmit={handleSubmit}>
-                <h1 className="font-bold m-0">Inicia Sesión</h1>
+                <h1 className="font-bold m-0 text-2xl">Inicia Sesión</h1>
                 <div className="my-5 flex justify-between w-50 mx-auto">
                     <a href="#" className="border border-gray-300 rounded-full inline-flex justify-center items-center mx-1 h-10 w-10 text-gray-800 text-sm no-underline my-[15px] social">
                         <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" class="bi bi-facebook" viewBox="0 0 16 16">
