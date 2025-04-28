@@ -1,22 +1,23 @@
 const conexion = require("./mysql");
+const usuarioDB = require("./usuariosDB");
 
 class Alumno {
     static async todos() {
         try {
             const conn = await conexion;
-            const [results] = await conn.query(`SELECT * FROM alumno INNER JOIN usuarios ON alumno.id_usuario = usuarios.id_usuario`);
+            const [results] = await conn.query(`SELECT * FROM alumno INNER JOIN usuarios ON alumno.id_usuario = usuarios.id_usuario order by id_alumno desc`);
             return results;
         } catch (error) {
             throw new Error(`Error al obtener todos los alumnos: ${error.message}`);
         }
     }
 
-    static async uno(codigo_alumno) {
+    static async uno(dni) {
         try {
             const conn = await conexion;
             const [results] = await conn.query(
-                `SELECT * FROM alumno WHERE codigo_alumno = ?`,
-                [codigo_alumno]
+                `SELECT * FROM alumno INNER JOIN usuarios ON alumno.id_usuario = usuarios.id_usuario WHERE dni = ?`,
+                [dni]
             );
             return results;
         } catch (error) {
@@ -28,10 +29,10 @@ class Alumno {
 
     static async agregar({ input }) {
         const conn = await conexion;
-        const { codigo_alumno, carrera, ciclo, created_at, update_at } = input;
-        const result = await conn.query(
-            "INSERT INTO alumno (codigo_alumno, carrera, ciclo, created_at, updated_at) VALUES (?,?,?,?,?,?);",
-            [codigo_alumno, carrera, ciclo, created_at, update_at]
+        const { id_usuario, codigo_alumno, carrera, ciclo, created_at, update_at } = input;
+        const [result] = await conn.query(
+            "INSERT INTO alumno (id_usuario, codigo_alumno, carrera, ciclo, created_at, updated_at) VALUES (?,?,?,?,?,?);",
+            [id_usuario, codigo_alumno, carrera, ciclo, created_at, update_at]
         );
         return result;
     }

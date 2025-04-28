@@ -3,6 +3,7 @@ const app = express();
 const config = require('./controllers/config')
 const middlewareCors = require('./middleware/cors')
 const AlumnoRouter = require('./routes/alumnosRoutes')
+const DocenteRouter = require('./routes/docentesRoutes')
 const cookieParser = require('cookie-parser')
 const userController = require('./controllers/usuariosController')
 const authMiddleware = require('./middleware/cookies');
@@ -40,4 +41,8 @@ app.get('/protected', authMiddleware, (req, res) => {
 //Configuración de las Rutas Alumnos con el servidor
 app.use('/alumnos', AlumnoRouter)
 
+//Configuración de las Rutas Docentes con el servidor
+app.use('/docentes', DocenteRouter)
+
+//Configuración de las Rutas Usuarios con el servidor
 app.use('/usuarios', UserRouter)

@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import AppLayout from "../AppLayout";
-import Alert from "./../notification/Notification";
-import ModalCrearAlumno from "./ModalCrearAlumno";
-import ModalEditarAlumno from "./ModalEditarAlumno";
+/* import './alumno.css'; */
 
 // Iconos personalizados
 const SearchIcon = () => (
@@ -34,57 +32,31 @@ const ViewIcon = () => (
     </svg>
 );
 
-export default function AlumnoCrud() {
-    const [alumnos, setAlumnos] = useState([]);
+
+export function DocenteCrud() {
+    const [docentes, setDocentes] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(5);
     const [sortConfig, setSortConfig] = useState({ key: null, direction: 'ascending' });
-    const [selectedAlumnos, setSelectedAlumnos] = useState([]);
+    const [selectedDocentes, setSelectedDocentes] = useState([]);
     const [selectAll, setSelectAll] = useState(false);
-    const [mostrarModalCrearAlumno, setMostrarModalCrearAlumno] = useState(false);
-    const [dniAlumnoEditar, setDniAlumnoEditar] = useState(null);
-    const [mostrarModalEditarAlumno, setMostrarModalEditarAlumno] = useState(false);
-    const [modalExiting, setModalExiting] = useState(false);
-    const [modalExitingEditar, setModalExitingEditar] = useState(false);
-    const [alert, setAlert] = useState({ show: false, message: "", type: "" });
+    const [mostrarModal, setMostrarModal] = useState(false);
 
-    // Obtener datos de alumnos
+    // Obtener datos de los docentes
     useEffect(() => {
         setLoading(true);
-        axios.get("http://localhost:4000/alumnos")
+        axios.get("http://localhost:4000/docentes")
             .then((response) => {
-                setAlumnos(response.data);
+                setDocentes(response.data);
                 setLoading(false);
             })
             .catch((err) => {
-                console.error("Error al obtener los alumnos", err);
+                console.error("Error al obtener los docentes", err);
                 setLoading(false);
             });
     }, []);
-
-    const actualizarAlumnos = () => {
-        setLoading(true);
-        axios.get("http://localhost:4000/alumnos")
-            .then((response) => {
-                setAlumnos(response.data);
-                setLoading(false);
-            })
-            .catch((err) => {
-                console.error("Error al obtener los alumnos", err);
-                setLoading(false);
-                showAlert("Error al cargar los alumnos. Por favor, intente nuevamente.", "error");
-            });
-    };
-
-    const onAlumnoCreado = (success = true) => {
-        if (success) {
-            showAlert("Alumno creado correctamente", "success");
-        } else {
-            showAlert("Error al crear el alumno. Inténtalo de nuevo.", "error");
-        }
-    };
 
     // Manejar ordenamiento
     const requestSort = (key) => {
@@ -95,41 +67,12 @@ export default function AlumnoCrud() {
         setSortConfig({ key, direction });
     };
 
-    const abrirModalCrearAlumno = () => setMostrarModalCrearAlumno(true);
-
-    const cerrarModalCrearAlumno = () => {
-        setModalExiting(true);
-        setTimeout(() => {
-            setMostrarModalCrearAlumno(false);
-            setModalExiting(false);
-        }, 500); // coincide con la duración de la animación
-    };
-
-    const abrirModalEditarAlumno = (dni) => {
-        setDniAlumnoEditar(dni);
-        setMostrarModalEditarAlumno(true);
-    };
-
-    const cerrarModalEditarAlumno = () => {
-        setModalExitingEditar(true);
-        setTimeout(() => {
-            setMostrarModalEditarAlumno(false);
-            setModalExitingEditar(false);
-        }, 500);
-    }
-
-    // Añade esta función dentro de la función AlumnoCrud, para manejar las alertas:
-    const showAlert = (message, type = "info") => {
-        setAlert({ show: true, message, type });
-    };
-
-    const closeAlert = () => {
-        setAlert({ ...alert, show: false });
-    };
+    const abrirModal = () => setMostrarModal(true);
+    const cerrarModal = () => setMostrarModal(false);
 
     // Aplicar ordenamiento
-    const sortedAlumnos = React.useMemo(() => {
-        let sortableItems = [...alumnos];
+    const sortedDocente = React.useMemo(() => {
+        let sortableItems = [...docentes];
         if (sortConfig.key) {
             sortableItems.sort((a, b) => {
                 if (a[sortConfig.key] < b[sortConfig.key]) {
@@ -142,46 +85,46 @@ export default function AlumnoCrud() {
             });
         }
         return sortableItems;
-    }, [alumnos, sortConfig]);
+    }, [docentes, sortConfig]);
 
     // Aplicar búsqueda
-    const filteredAlumnos = React.useMemo(() => {
-        return sortedAlumnos.filter(alumno => {
+    const filteredDocentes = React.useMemo(() => {
+        return sortedDocente.filter(docente => {
             return (
-                alumno.nombre?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                alumno.apellido_paterno?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                alumno.apellido_materno?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                alumno.carrera?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                alumno.codigo_alumno?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                `${alumno.nombre} ${alumno.apellido_paterno} ${alumno.apellido_materno}`.toLowerCase().includes(searchTerm.toLowerCase())
+                docente.nombre?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                docente.apellido_paterno?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                docente.apellido_materno?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                `${docente.nombre} ${docente.apellido_paterno} ${docente.apellido_materno}`.toLowerCase().includes(searchTerm.toLowerCase())
+                /* docente.carrera?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                docente.codigo_alumno?.toLowerCase().includes(searchTerm.toLowerCase()) */
             );
         });
-    }, [sortedAlumnos, searchTerm]);
-
+    }, [sortedDocente, searchTerm]);
+    
     // Paginación
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const currentAlumnos = filteredAlumnos.slice(indexOfFirstItem, indexOfLastItem);
-    const totalPages = Math.ceil(filteredAlumnos.length / itemsPerPage);
+    const currentDocentes = filteredDocentes.slice(indexOfFirstItem, indexOfLastItem);
+    const totalPages = Math.ceil(filteredDocentes.length / itemsPerPage);
 
     // Cambiar página
     const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
     // Manejar selección de checkbox
-    const handleSelectAlumno = (id_usuario) => {
-        if (selectedAlumnos.includes(id_usuario)) {
-            setSelectedAlumnos(selectedAlumnos.filter(alumnoId => alumnoId !== id_usuario));
+    const handleSelectDocente = (id_usuario) => {
+        if (selectedDocentes.includes(id_usuario)) {
+            setSelectedDocentes(selectedDocentes.filter(docenteId => docenteId !== id_usuario));
         } else {
-            setSelectedAlumnos([...selectedAlumnos, id_usuario]);
+            setSelectedDocentes([...selectedDocentes, id_usuario]);
         }
     };
 
     // Manejar selección de todos
     const handleSelectAll = () => {
         if (selectAll) {
-            setSelectedAlumnos([]);
+            setSelectedDocentes([]);
         } else {
-            setSelectedAlumnos(currentAlumnos.map(alumno => alumno.id_usuario));
+            setSelectedDocentes(currentDocentes.map(docente => docente.id_usuario));
         }
         setSelectAll(!selectAll);
     };
@@ -204,8 +147,8 @@ export default function AlumnoCrud() {
             <div className="w-full p-6 bg-white rounded-lg shadow-sm">
                 {/* Cabecera */}
                 <div className="mb-8">
-                    <h1 className="text-2xl font-bold text-gray-800 mb-2">Gestión de Alumnos</h1>
-                    <p className="text-gray-600">Administra información de todos los alumnos registrados en el sistema</p>
+                    <h1 className="text-2xl font-bold text-gray-800 mb-2">Gestión de Docentes</h1>
+                    <p className="text-gray-600">Administra información de todos los docentes registrados en el sistema</p>
                 </div>
 
                 {/* Barra de acciones */}
@@ -214,7 +157,7 @@ export default function AlumnoCrud() {
                         <input
                             type="text"
                             className="w-full pl-10 pr-4 py-2 border border-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            placeholder="Buscar alumno..."
+                            placeholder="Buscar docente..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
@@ -236,10 +179,10 @@ export default function AlumnoCrud() {
 
                         <button
                             className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg shadow hover:from-blue-700 hover:to-blue-800 transition-all"
-                            onClick={abrirModalCrearAlumno}
+                            onClick={abrirModal}
                             onMouseOver={(e) => e.currentTarget.classList.add('shadow-lg')}
                         >
-                            <span>Nuevo Alumno</span>
+                            <span>Nuevo Docente</span>
                             <span>+</span>
                         </button>
                     </div>
@@ -248,10 +191,10 @@ export default function AlumnoCrud() {
                 {/* Información */}
                 <div className="flex justify-between items-center mb-4">
                     <div className="text-sm text-gray-500">
-                        <span className="font-medium">{filteredAlumnos.length}</span> alumnos encontrados
+                        <span className="font-medium">{filteredDocentes.length}</span> docentes encontrados
                     </div>
                     <div className="text-sm text-gray-500">
-                        <span className="font-medium">{selectedAlumnos.length}</span> seleccionados
+                        <span className="font-medium">{selectedDocentes.length}</span> seleccionados
                     </div>
                 </div>
 
@@ -294,16 +237,16 @@ export default function AlumnoCrud() {
                                 </th>
                                 <th
                                     className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
-                                    onClick={() => requestSort('carrera')}
+                                    onClick={() => requestSort('especialidad')}
                                 >
                                     <div className="flex items-center gap-1">
-                                        Carrera
-                                        {sortConfig.key === 'carrera' && (
+                                        Especialidad
+                                        {sortConfig.key === 'especialidad' && (
                                             <span>{sortConfig.direction === 'ascending' ? '↑' : '↓'}</span>
                                         )}
                                     </div>
                                 </th>
-                                <th
+                                {/* <th
                                     className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                                     onClick={() => requestSort('ciclo')}
                                 >
@@ -313,7 +256,7 @@ export default function AlumnoCrud() {
                                             <span>{sortConfig.direction === 'ascending' ? '↑' : '↓'}</span>
                                         )}
                                     </div>
-                                </th>
+                                </th> */}
                                 <th
                                     className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                                     onClick={() => requestSort('created_at')}
@@ -352,62 +295,59 @@ export default function AlumnoCrud() {
                                         </div>
                                     </td>
                                 </tr>
-                            ) : currentAlumnos.length === 0 ? (
+                            ) : currentDocentes.length === 0 ? (
                                 <tr>
                                     <td colSpan="10" className="px-6 py-16 text-center text-gray-500">
-                                        No se encontraron alumnos
+                                        No se encontraron docentes
                                     </td>
                                 </tr>
                             ) : (
-                                currentAlumnos.map((alumno) => (
-                                    <tr key={alumno.id} className="hover:bg-gray-50 transition-colors">
+                                currentDocentes.map((docente) => (
+                                    <tr key={docente.id} className="hover:bg-gray-50 transition-colors">
                                         <td className="px-4 py-4">
                                             <input
                                                 type="checkbox"
                                                 className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
-                                                checked={selectedAlumnos.includes(alumno.id_usuario)}
-                                                onChange={() => handleSelectAlumno(alumno.id_usuario)}
+                                                checked={selectedDocentes.includes(docente.id_usuario)}
+                                                onChange={() => handleSelectDocente(docente.id_usuario)}
                                             />
                                         </td>
                                         <td className="px-4 py-4 whitespace-nowrap">
                                             <div className="flex items-center">
                                                 <div className="h-9 w-9 flex-shrink-0 rounded-full bg-blue-100 flex items-center justify-center text-blue-800 font-medium uppercase">
-                                                    {alumno.nombre ? alumno.nombre.charAt(0) : "A"}
+                                                    {docente.nombre ? docente.nombre.charAt(0) : "A"}
                                                 </div>
                                                 <div className="ml-3">
-                                                    <div className="font-medium text-gray-900">
-                                                        {`${alumno.nombre} ${alumno.apellido_paterno} ${alumno.apellido_materno}` || 'N/A'}
-                                                    </div>
-                                                    <div className="text-sm text-gray-500">{alumno.email || 'Sin email'}</div>
+                                                    <div className="font-medium text-gray-900">{`${docente.nombre} ${docente.apellido_paterno} ${docente.apellido_materno}` || 'N/A'}</div>
+                                                    <div className="text-sm text-gray-500">{docente.email || 'Sin email'}</div>
                                                 </div>
                                             </div>
                                         </td>
                                         <td className="px-4 py-4 whitespace-nowrap">
                                             <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-sm font-medium bg-gray-100 text-gray-800">
-                                                {alumno.codigo_alumno || 'N/A'}
+                                                {docente.codigo_docente || 'N/A'}
                                             </span>
                                         </td>
                                         <td className="px-4 py-4 whitespace-nowrap">
-                                            <div className="text-sm font-medium text-gray-900">{alumno.carrera || 'N/A'}</div>
+                                            <div className="text-sm font-medium text-gray-900">{docente.especialidad || 'N/A'}</div>
                                         </td>
-                                        <td className="px-4 py-4 whitespace-nowrap text-center">
+{/*                                         <td className="px-4 py-4 whitespace-nowrap text-center">
                                             <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-blue-100 text-blue-800 font-medium">
-                                                {alumno.ciclo || 'N/A'}
+                                                {docente.nombre || 'N/A'}
                                             </span>
+                                        </td> */}
+                                        <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            {formatDate(docente.created_at)}
                                         </td>
                                         <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {formatDate(alumno.created_at)}
-                                        </td>
-                                        <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {formatDate(alumno.updated_at)}
+                                            {formatDate(docente.updated_at)}
                                         </td>
                                         <td className="px-4 py-4 whitespace-nowrap text-sm text-right">
                                             <div className="flex justify-center gap-2">
                                                 <button className="text-blue-600 hover:text-blue-900 p-1 rounded-full hover:bg-blue-100 transition-colors" title="Ver">
                                                     <ViewIcon />
                                                 </button>
-                                                <button className="text-yellow-600 hover:text-yellow-900 p-1 rounded-full hover:bg-yellow-100 transition-colors" title="Editar"
-                                                    onClick={() => abrirModalEditarAlumno(alumno.dni)}>
+                                                <button className="text-yellow-600 hover:text-yellow-900 p-1 rounded-full hover:bg-yellow-100 transition-colors" title="Editar">
                                                     <EditIcon />
                                                 </button>
                                                 <button className="text-red-600 hover:text-red-900 p-1 rounded-full hover:bg-red-100 transition-colors" title="Eliminar">
@@ -423,12 +363,12 @@ export default function AlumnoCrud() {
                 </div>
 
                 {/* Paginación */}
-                {filteredAlumnos.length > 0 && (
+                {filteredDocentes.length > 0 && (
                     <div className="flex justify-between items-center mt-6">
                         <div className="text-sm text-gray-500">
                             Mostrando <span className="font-medium">{indexOfFirstItem + 1}</span> a <span className="font-medium">
-                                {Math.min(indexOfLastItem, filteredAlumnos.length)}
-                            </span> de <span className="font-medium">{filteredAlumnos.length}</span> resultados
+                                {Math.min(indexOfLastItem, filteredDocentes.length)}
+                            </span> de <span className="font-medium">{filteredDocentes.length}</span> resultados
                         </div>
 
                         <div className="flex gap-2">
@@ -488,10 +428,10 @@ export default function AlumnoCrud() {
                 )}
 
                 {/* Acciones en lote */}
-                {selectedAlumnos.length > 0 && (
+                {selectedDocentes.length > 0 && (
                     <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-white border border-gray-200 rounded-lg shadow-lg px-6 py-3 flex items-center gap-4">
                         <span className="text-sm font-medium text-gray-700">
-                            {selectedAlumnos.length} {selectedAlumnos.length === 1 ? 'alumno' : 'alumnos'} seleccionado{selectedAlumnos.length !== 1 ? 's' : ''}
+                            {selectedDocentes.length} {selectedDocentes.length === 1 ? 'docente' : 'docentes'} seleccionado{selectedDocentes.length !== 1 ? 's' : ''}
                         </span>
                         <div className="h-6 border-l border-gray-300"></div>
                         <button className="text-sm text-blue-600 hover:text-blue-800">Exportar seleccionados</button>
@@ -500,36 +440,65 @@ export default function AlumnoCrud() {
                 )}
             </div>
 
-            {/* Modal para nuevo alumno */}
-            {mostrarModalCrearAlumno && (
-                <ModalCrearAlumno
-                    cerrarModalCrearAlumno={cerrarModalCrearAlumno}
-                    modalExiting={modalExiting}
-                    actualizarAlumnos={actualizarAlumnos}
-                    onAlumnoCreado={onAlumnoCreado}
-                />
-            )}
+            {/* Modal para nuevo docente */}
+            {mostrarModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center">
+                    {/* Fondo oscuro con desenfoque */}
+                    <div
+                        className="absolute inset-0 bg-gray-800 bg-opacity-10 transition-opacity duration-300"
+                        onClick={cerrarModal}
+                    ></div>
 
-            {/*Modal para editar alumno */}
-            {mostrarModalEditarAlumno && (
-                <ModalEditarAlumno
-                    cerrarModalEditarAlumno={cerrarModalEditarAlumno}
-                    modalExitingEditar={modalExitingEditar}
-                    dniAlumnoEditar={dniAlumnoEditar}
-                    actualizarAlumnos={actualizarAlumnos}
-                    onAlumnoCreado={onAlumnoCreado}
-                />
-            )}
+                    {/* Contenedor del modal con animación */}
+                    <div className="relative z-10 w-full max-w-lg p-6 bg-white rounded-2xl shadow-2xl transform transition-all duration-500 ease-out scale-100 opacity-100 translate-y-0 animate-slideIn">
+                        {/* Encabezado */}
+                        <div className="flex items-center justify-between pb-4 border-b">
+                            <h2 className="text-2xl font-semibold text-gray-800">Nuevo Docente</h2>
+                            <button
+                                onClick={cerrarModal}
+                                className="text-gray-400 hover:text-gray-600 transition"
+                            >
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    className="w-6 h-6"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke="currentColor"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M6 18L18 6M6 6l12 12"
+                                    />
+                                </svg>
+                            </button>
+                        </div>
 
+                        {/* Cuerpo */}
+                        <div className="py-5 space-y-4">
+                            <p className="text-gray-600 text-center">Aquí irá tu formulario 👌</p>
+                        </div>
 
-            {/* Alerta */}
-            {alert.show && (
-                <Alert
-                    message={alert.message}
-                    type={alert.type}
-                    onClose={closeAlert}
-                />
+                        {/* Footer */}
+                        <div className="flex justify-end gap-3 pt-5 border-t">
+                            <button
+                                onClick={cerrarModal}
+                                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition"
+                            >
+                                Cancelar
+                            </button>
+                            <button
+                                className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow transition"
+                            >
+                                Guardar
+                            </button>
+                        </div>
+                    </div>
+                </div>
             )}
         </AppLayout>
     );
 }
+
+export default DocenteCrud;

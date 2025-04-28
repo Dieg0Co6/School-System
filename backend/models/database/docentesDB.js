@@ -4,7 +4,7 @@ class Docente{
     static async todos() {
         try {
             const conn = await conexion;
-            const [results] = await conn.query('SELECT * FROM docente');
+            const [results] = await conn.query(`SELECT * FROM docente INNER JOIN usuarios ON docente.id_usuario = usuarios.id_usuario`);
             return results;
         } catch (error) {
             throw new Error(`Error al obtener todos los docentes: ${error.message}`);
@@ -66,3 +66,5 @@ class Docente{
         });
     }
 }
+
+module.exports = Docente;

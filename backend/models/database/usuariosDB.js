@@ -31,7 +31,7 @@ class Usuario {
             password,
             dni
         } = input
-        const result = await conn.query('INSERT INTO usuarios (nombre, apellido_paterno, apellido_materno, email, password, dni, estado) VALUES (?,?,?,?,?,?,?);', [nombre, apellido_paterno, apellido_materno, email, password, dni,1])
+        const [result] = await conn.query('INSERT INTO usuarios (nombre, apellido_paterno, apellido_materno, email, password, dni, estado) VALUES (?,?,?,?,?,?,?);', [nombre, apellido_paterno, apellido_materno, email, password, dni,1])
         return result
     }
 
