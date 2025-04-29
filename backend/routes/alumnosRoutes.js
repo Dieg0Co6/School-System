@@ -13,9 +13,9 @@ AlumnoRouter.get('/:dni', alumnoController.getById)
 AlumnoRouter.post('/', alumnoController.create)
 
 //ROUTE PARA EDITAR UN ALUMNO
-AlumnoRouter.patch('/:id', alumnoController.edit)
+AlumnoRouter.patch('/:id_usuario', alumnoController.edit)
 
 //ROUTE PARA ELIMINAR UN ALUMNO
-AlumnoRouter.delete('/:id', alumnoController.delete)
+AlumnoRouter.delete('/:id_usuario', alumnoController.delete)
 
 module.exports = AlumnoRouter;

@@ -5,7 +5,7 @@ class Alumno {
     static async todos() {
         try {
             const conn = await conexion;
-            const [results] = await conn.query(`SELECT * FROM alumno INNER JOIN usuarios ON alumno.id_usuario = usuarios.id_usuario order by id_alumno desc`);
+            const [results] = await conn.query(`SELECT * FROM alumno INNER JOIN usuarios ON alumno.id_usuario = usuarios.id_usuario WHERE usuarios.estado = 1 order by id_alumno desc`);
             return results;
         } catch (error) {
             throw new Error(`Error al obtener todos los alumnos: ${error.message}`);
@@ -37,22 +37,22 @@ class Alumno {
         return result;
     }
 
-    static async editar({ id, input }) {
+    static async editar({ id_usuario, input }) {
         const conn = await conexion;
         const { codigo_alumno, carrera, ciclo } = input;
         const result = await conn.query(
-            "UPDATE alumno SET codigo_alumno = ? , carrera = ? , ciclo = ? WHERE id_alumno = ? ",
-            [codigo_alumno, carrera, ciclo, id]
+            "UPDATE alumno SET codigo_alumno = ? , carrera = ? , ciclo = ? WHERE id_usuario = ? ",
+            [codigo_alumno, carrera, ciclo, id_usuario]
         );
         return result;
     }
-    static async eliminar({ id }) {
+/*     static async eliminar({ id }) {
         const conn = await conexion;
-        const result = await conn.query("DELETE FROM alumno WHERE id_alumno = ?", [
+        const result = await conn.query("UPDATE usuarios SET estado = ? WHERE id_usuario = ?", [
             id,
         ]);
         return result;
-    }
+    } */
 
     /* static async query(tabla, consulta) {
           return new Promise((resolve, reject) => {

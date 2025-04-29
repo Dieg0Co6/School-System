@@ -35,7 +35,7 @@ class Usuario {
         return result
     }
 
-    static async editar({ id, input }) {
+    static async editar({ id_usuario, input }) {
         const conn = await conexion;
         const {
             dni,
@@ -43,14 +43,15 @@ class Usuario {
             apellido_paterno,
             apellido_materno,
             email,
+            password,
             fecha_nacimiento
         } = input
-        const result = await conn.query('UPDATE usuarios SET dni = ? , nombre = ? , apellido_paterno = ? , apellido_materno = ? , email = ? , fecha_nacimiento = ? WHERE id = ? ', [dni, nombre, apellido_paterno, apellido_materno, email, fecha_nacimiento, id])
+        const [result] = await conn.query('UPDATE usuarios SET dni = ? , nombre = ? , apellido_paterno = ? , apellido_materno = ? , email = ? , fecha_nacimiento = ? WHERE id_usuario = ? ', [dni, nombre, apellido_paterno, apellido_materno, email, fecha_nacimiento, id_usuario])
         return result
     }
-    static async eliminar({ id }) {
+    static async eliminar({ id_usuario}) {
         const conn = await conexion;
-        const result = await conn.query('DELETE FROM usuarios WHERE id = ?', [id]);
+        const [result] = await conn.query('UPDATE usuarios SET estado = 0 WHERE id_usuario = ?', [id_usuario])
         return result;
     }
 

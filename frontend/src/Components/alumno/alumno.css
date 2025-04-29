@@ -162,3 +162,41 @@
 .modal-button.confirm:hover {
   background: #1e40af;
 }
+
+
+/* Estilos para el modal pequeño de eliminación */
+.modal-small {
+  max-width: 400px !important;
+  min-height: auto !important;
+}
+
+.confirm-delete {
+  text-align: center;
+  padding: 10px;
+}
+
+.warning-message {
+  font-size: 1.1rem;
+  margin-bottom: 10px;
+  font-weight: 500;
+}
+
+.warning-text {
+  color: #888;
+  font-size: 0.9rem;
+  margin-bottom: 5px;
+}
+
+.modal-button.delete {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.modal-button.delete:hover {
+  background-color: #c0392b;
+}
+
+/* Ícono de advertencia */
+.modal-icon {
+  color: #e74c3c;
+}

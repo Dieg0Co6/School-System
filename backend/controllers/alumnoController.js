@@ -1,7 +1,7 @@
 const Alumno = require('../models/database/alumnosDB');
 const Usuario = require('../models/database/usuariosDB');
 const validateAlumno = require('../schemas/alumnoSchema');
-const { validateUsuario } = require("../schemas/usuarioSchema");
+const { validateUsuario, validateUsuarioUpdate } = require("../schemas/usuarioSchema");
 const bcrypt = require('bcrypt');
 const SALT_ROUNDS = 10;
 const conexion = require('../models/database/mysql');
@@ -116,14 +116,57 @@ class alumnoController {
         if (!req.body) {
             return res.status(400).json({ error: 'El cuerpo de la solicitud está vacío' });
         }
-        const result = validateAlumno(req.body);
+        const result = validateUsuarioUpdate(req.body);
         if (!result.success) {
             return res.status(400).json({ error: result.error.format() });
         }
+        const result2 = validateAlumno(req.body);
+        if (!result2.success) {
+            return res.status(400).json({ error: result2.error.format() });
+        }
+
         try {
-            const { id } = req.params;
-            const updateAlumno = await Alumno.editar({ id, input: result.data })
-            res.status(200).json(updateAlumno);
+            const {
+                nombre,
+                apellido_paterno,
+                apellido_materno,
+                fecha_nacimiento,
+                email,
+                dni
+            } = result.data;
+
+            const {
+                codigo_alumno,
+                carrera,
+                ciclo
+            } = result2.data;
+
+            let usuarioInput = {
+                nombre,
+                apellido_paterno,
+                apellido_materno,
+                fecha_nacimiento,
+                email,
+                dni,
+                update_at: new Date()
+            };
+
+            const { id_usuario } = req.params;
+            await Usuario.editar({
+                id_usuario,
+                input: usuarioInput
+            });
+
+            await Alumno.editar({
+                id_usuario,
+                input: {
+                    codigo_alumno,
+                    carrera,
+                    ciclo,
+                    update_at: new Date()
+                }
+            });
+            res.status(200).json({ message: 'Alumno editado correctamente' });
         } catch (error) {
             console.error('Error al editar el alumno:', error);
             res.status(500).send('Error al editar el alumno');
@@ -132,11 +175,14 @@ class alumnoController {
 
     static async delete(req, res) {
         try {
-            const { id } = req.params;
-            if (!id) {
+            const { id_usuario} = req.params;
+            if (!id_usuario) {
                 return res.status(400).json({ error: 'ID es requerido' });
             }
-            const deleteAlumno = await Alumno.eliminar({ id })
+            const deleteAlumno = await Usuario.eliminar({ id_usuario });
+            if (deleteAlumno.affectedRows === 0) {
+                return res.status(404).json({ error: 'Alumno no encontrado' });
+            }
             res.status(200).json(deleteAlumno);
         } catch (error) {
             console.error('Error al eliminar el alumno:', error);

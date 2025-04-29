@@ -2,8 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import AppLayout from "../AppLayout";
 import Alert from "./../notification/Notification";
-import ModalCrearAlumno from "./ModalCrearAlumno";
-import ModalEditarAlumno from "./ModalEditarAlumno";
+import {ModalCrearAlumno, ModalEditarAlumno, ModalEliminarAlumno} from "./ModalesAlumno";
 
 // Iconos personalizados
 const SearchIcon = () => (
@@ -45,9 +44,12 @@ export default function AlumnoCrud() {
     const [selectAll, setSelectAll] = useState(false);
     const [mostrarModalCrearAlumno, setMostrarModalCrearAlumno] = useState(false);
     const [dniAlumnoEditar, setDniAlumnoEditar] = useState(null);
+    const [idUsuarioEliminar, setIdUsuarioEliminar] = useState(null);
     const [mostrarModalEditarAlumno, setMostrarModalEditarAlumno] = useState(false);
+    const [mostrarModalEliminarAlumno, setMostrarModalEliminarAlumno] = useState(false);
     const [modalExiting, setModalExiting] = useState(false);
     const [modalExitingEditar, setModalExitingEditar] = useState(false);
+    const [modalExitingEliminar, setModalExitingEliminar] = useState(false);
     const [alert, setAlert] = useState({ show: false, message: "", type: "" });
 
     // Obtener datos de alumnos
@@ -86,6 +88,22 @@ export default function AlumnoCrud() {
         }
     };
 
+    const onAlumnoEditado = (success = true) => {
+        if (success) {
+            showAlert("Alumno editado correctamente", "success");
+        } else {
+            showAlert("Error al editar el alumno. Inténtalo de nuevo.", "error");
+        }
+    };
+
+    const onAlumnoEliminado = (success = true) => {
+        if (success) {
+            showAlert("Alumno eliminado correctamente", "success");
+        } else {
+            showAlert("Error al eliminar el alumno. Inténtalo de nuevo.", "error");
+        }
+    };
+
     // Manejar ordenamiento
     const requestSort = (key) => {
         let direction = 'ascending';
@@ -118,7 +136,20 @@ export default function AlumnoCrud() {
         }, 500);
     }
 
-    // Añade esta función dentro de la función AlumnoCrud, para manejar las alertas:
+    const abrirModalEliminarAlumno = (id_usuario) => {
+        setIdUsuarioEliminar(id_usuario);
+        setMostrarModalEliminarAlumno(true);
+    };
+
+    const cerrarModalEliminarAlumno = () => {
+        setModalExitingEliminar(true);
+        setTimeout(() => {
+            setMostrarModalEliminarAlumno(false);
+            setModalExitingEliminar(false);
+        }, 500);
+    }
+
+    //Funcion para mostrar alertas
     const showAlert = (message, type = "info") => {
         setAlert({ show: true, message, type });
     };
@@ -410,7 +441,8 @@ export default function AlumnoCrud() {
                                                     onClick={() => abrirModalEditarAlumno(alumno.dni)}>
                                                     <EditIcon />
                                                 </button>
-                                                <button className="text-red-600 hover:text-red-900 p-1 rounded-full hover:bg-red-100 transition-colors" title="Eliminar">
+                                                <button className="text-red-600 hover:text-red-900 p-1 rounded-full hover:bg-red-100 transition-colors" title="Eliminar"
+                                                    onClick={() => abrirModalEliminarAlumno(alumno.id_usuario)}>
                                                     <DeleteIcon />
                                                 </button>
                                             </div>
@@ -517,7 +549,18 @@ export default function AlumnoCrud() {
                     modalExitingEditar={modalExitingEditar}
                     dniAlumnoEditar={dniAlumnoEditar}
                     actualizarAlumnos={actualizarAlumnos}
-                    onAlumnoCreado={onAlumnoCreado}
+                    onAlumnoEditado={onAlumnoEditado}
+                />
+            )}
+
+            {/* Modal para eliminar alumno */}
+            {mostrarModalEliminarAlumno && (
+                <ModalEliminarAlumno
+                    cerrarModalEliminarAlumno={cerrarModalEliminarAlumno}
+                    modalExitingEliminar={modalExitingEliminar}
+                    idUsuarioEliminar={idUsuarioEliminar}
+                    actualizarAlumnos={actualizarAlumnos}
+                    onAlumnoEliminado={onAlumnoEliminado}
                 />
             )}
 
