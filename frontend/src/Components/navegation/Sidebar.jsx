@@ -1,28 +1,31 @@
-import React, { useState } from 'react';
+import React from 'react';
 import axios from 'axios';
-import { Link, useLocation , useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { useTransition } from '../context/TransitionMagnager'; // Asegúrate de que la ruta sea correcta
 
 const Sidebar = ({ isOpen, setIsOpen }) => {
   const location = useLocation();
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
+  const { startTransition } = useTransition();
 
   function handleLogut() {
     axios
-      .post(
-        "http://localhost:4000/logout",
-        {},
-        {
-          withCredentials: true,
-        }
-      )
-      .then((response) => {
-        // Redireccionar al usuario a la página de login u otra página
-        navigate("/");
-      })
+      .post("http://localhost:4000/logout", {}, { withCredentials: true, })
+      .then(() => {navigate("/");})
       .catch((error) => {
         console.error("Error al hacer logout:", error);
       });
   }
+
+  // Función para manejar clics en elementos del menú
+  const handleNavClick = (e, path, title) => {
+    e.preventDefault(); // Prevenir comportamiento predeterminado de Link
+
+    // Solo iniciar transición si no estamos ya en esa ruta
+    if (location.pathname !== path) {
+      startTransition(path, title);
+    }
+  };
 
   const navItems = [
     {
@@ -92,16 +95,17 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
             const isActive = location.pathname === item.path;
             return (
               <li key={index} className={`${index === 1 || index === 3 ? 'border-t border-gray-300' : ''}`}>
-                <Link
-                  to={item.path}
+                <a
+                  href={item.path}
+                  onClick={(e) => handleNavClick(e, item.path, item.title)}
                   className={`flex items-center px-4 py-3 text-sm rounded-lg transition-colors ${isActive
-                      ? 'bg-red-200 text-white font-medium'
-                      : 'text-gray-700 hover:bg-red-50'
+                    ? 'bg-red-200 text-red-700 font-medium'
+                    : 'text-gray-700 hover:bg-red-50'
                     }`}
                 >
                   <span className="mr-3">{item.icon}</span>
                   <span>{item.title}</span>
-                </Link>
+                </a>
               </li>
             );
           })}
@@ -111,13 +115,16 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
       {/* Logout button */}
       <div className="mt-auto px-4 pb-6 absolute bottom-0 w-full">
         <div className="border-t border-gray-300 pt-4">
-          <Link to={""} className="flex items-center w-full px-5 py-3 text-sm text-gray-700 hover:bg-red-50 hover:text-red-500 rounded-lg transition-colors"
-            onClick={handleLogut}>
+          <a
+            href="/"
+            className="flex items-center w-full px-5 py-3 text-sm text-gray-700 hover:bg-red-50 hover:text-red-500 rounded-lg transition-colors"
+            onClick={handleLogut}
+          >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
             </svg>
             <span>Cerrar sesión</span>
-          </Link>
+          </a>
         </div>
       </div>
     </aside>

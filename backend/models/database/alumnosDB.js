@@ -29,10 +29,10 @@ class Alumno {
 
     static async agregar({ input }) {
         const conn = await conexion;
-        const { id_usuario, codigo_alumno, carrera, ciclo, created_at, update_at } = input;
+        const { id_usuario, codigo_alumno, carrera, ciclo, created_at, updated_at } = input;
         const [result] = await conn.query(
             "INSERT INTO alumno (id_usuario, codigo_alumno, carrera, ciclo, created_at, updated_at) VALUES (?,?,?,?,?,?);",
-            [id_usuario, codigo_alumno, carrera, ciclo, created_at, update_at]
+            [id_usuario, codigo_alumno, carrera, ciclo, created_at, updated_at]
         );
         return result;
     }

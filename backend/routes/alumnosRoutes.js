@@ -3,6 +3,9 @@ const alumnoController = require('../controllers/alumnoController');
 const AlumnoRouter = Router()
 
 
+//ROUTE PARA LAS ESPECIALIDADES
+AlumnoRouter.get('/especialidades', alumnoController.getEspecialidad)
+
 //ROUTE PARA TODOS LOS ALUMNOS
 AlumnoRouter.get('/', alumnoController.getAll)
 

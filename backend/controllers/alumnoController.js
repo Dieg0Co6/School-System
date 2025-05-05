@@ -1,5 +1,6 @@
 const Alumno = require('../models/database/alumnosDB');
 const Usuario = require('../models/database/usuariosDB');
+const Facultad = require('../models/database/facultadDB');
 const validateAlumno = require('../schemas/alumnoSchema');
 const { validateUsuario, validateUsuarioUpdate } = require("../schemas/usuarioSchema");
 const bcrypt = require('bcrypt');
@@ -52,6 +53,7 @@ class alumnoController {
                 apellido_paterno,
                 apellido_materno,
                 email,
+                fecha_nacimiento,
                 password,
                 dni
             } = result.data;
@@ -75,10 +77,10 @@ class alumnoController {
                     nombre: nombre,
                     apellido_paterno: apellido_paterno,
                     apellido_materno: apellido_materno,
+                    fecha_nacimiento: fecha_nacimiento,
                     email: email,
                     password: hashedPassword,
-                    dni: dni,
-                    estado: 1
+                    dni: dni
                 }
             });
             const usuario_id = nuevoUsuario.insertId;
@@ -97,7 +99,7 @@ class alumnoController {
                     carrera: carrera,
                     ciclo: ciclo,
                     created_at: new Date(),
-                    update_at: new Date()
+                    updated_at: new Date()
                 }
             });
 
@@ -107,6 +109,15 @@ class alumnoController {
         } catch (error) {
             await conn.rollback();
             console.error('Error al agregar el alumno:', error);
+            res.status(500).json({ error: error.message });
+        }
+    }
+
+    static async getEspecialidad(req, res) {
+        try{
+            const especialidades = await Facultad.todosEpecialidades();
+            res.status(200).json({ especialidades });
+        }catch(error){
             res.status(500).json({ error: error.message });
         }
     }
@@ -163,7 +174,7 @@ class alumnoController {
                     codigo_alumno,
                     carrera,
                     ciclo,
-                    update_at: new Date()
+                    updated_at: new Date()
                 }
             });
             res.status(200).json({ message: 'Alumno editado correctamente' });

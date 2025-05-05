@@ -1,29 +1,30 @@
-import { useState, useEffect, use } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
-import './alumno.css';
+import './docente.css';
 
-export function ModalCrearAlumno({ cerrarModalCrearAlumno, modalExiting, actualizarAlumnos, onAlumnoCreado }) {
+export function ModalCrearDocente({ cerrarModalCrearDocente, modalExiting, actualizarDocentes, onDocenteCreado }) {
     const [formData, setFormData] = useState({
-        codigo_alumno: '',
+        codigo_docente: '',
         dni: '',
         nombre: '',
         apellido_paterno: '',
         apellido_materno: '',
         fecha_nacimiento: '',
         email: '',
-        ciclo: '',
-        carrera: '',
         password: '',
+        facultad: '',
+        especialidad: ''
     });
 
     const [submitting, setSubmitting] = useState(false);
-    const [especialidad, setEspecialidad] = useState([]);
+    const [facultades, setFacultades] = useState([]);
+    const [especialidades, setEspecialidades] = useState([]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData({
             ...formData,
-            [name]: name === 'ciclo' ? parseInt(value, 10) : value
+            [name]: value,
         });
     };
 
@@ -31,28 +32,27 @@ export function ModalCrearAlumno({ cerrarModalCrearAlumno, modalExiting, actuali
         e.preventDefault();
         setSubmitting(true);
         try {
-            await axios.post('http://localhost:4000/alumnos', formData);
-            cerrarModalCrearAlumno();
-
+            await axios.post('http://localhost:4000/docentes', formData);
+            cerrarModalCrearDocente();
             setTimeout(() => {
-                if (onAlumnoCreado) {
-                    onAlumnoCreado(true);
+                if (onDocenteCreado) {
+                    onDocenteCreado(true);
                 }
 
-                // Actualiza la lista de alumnos
-                if (actualizarAlumnos) {
-                    actualizarAlumnos();
+                // Actualiza la lista de docentes
+                if (actualizarDocentes) {
+                    actualizarDocentes();
                 }
             }, 300);
 
         } catch (error) {
             console.error('Error en la solicitud:', error);
-            cerrarModalCrearAlumno();
+            cerrarModalCrearDocente();
 
             setTimeout(() => {
                 // Informa que hubo un error
-                if (onAlumnoCreado) {
-                    onAlumnoCreado(false);
+                if (onDocenteCreado) {
+                    onDocenteCreado(false);
                 }
             }, 300);
         } finally {
@@ -61,20 +61,65 @@ export function ModalCrearAlumno({ cerrarModalCrearAlumno, modalExiting, actuali
     };
 
     useEffect(() => {
-        axios.get('http://localhost:4000/alumnos/especialidades')
-            .then(response => {
-                setEspecialidad(response.data.especialidades);
-            })
-            .catch(error => {
-                console.error('Error al cargar especialidades:', error);
-            });
+        const obtenerDatosIniciales = async () => {
+            try {
+                const [facultadesRes, especialidadesRes] = await Promise.all([
+                    axios.get('http://localhost:4000/docentes/facultades'),
+                    axios.get('http://localhost:4000/docentes/especialidades'),
+                ]);
+                setFacultades(facultadesRes.data.facultades);
+                setEspecialidades(especialidadesRes.data.especialidades);
+            } catch (error) {
+                console.error('Error al cargar datos iniciales:', error);
+            }
+        };
+
+        obtenerDatosIniciales();
     }, []);
+
+    useEffect(() => {
+        const filtrarEspecialidades = async () => {
+            if (formData.facultad) {
+                const facultadSeleccionada = facultades.find(f => f.abrev_facultad === formData.facultad);
+                if (facultadSeleccionada) {
+                    try {
+                        const res = await axios.get(`http://localhost:4000/docentes/filtro/facultad-especialidad?id_facultad=${facultadSeleccionada.id_facultad}`);
+                        setEspecialidades(res.data.especialidades);
+                    } catch (error) {
+                        console.error('Error al filtrar especialidades:', error);
+                    }
+                }
+            }
+        };
+
+        filtrarEspecialidades();
+    }, [formData.facultad]);
+
+
+    useEffect(() => {
+        const obtenerFacultadDeEspecialidad = async () => {
+            if (formData.especialidad && !formData.facultad) {
+                const especialidadSeleccionada = especialidades.find(e => e.nom_especialidad === formData.especialidad);
+                if (especialidadSeleccionada) {
+                    try {
+                        const res = await axios.get(`http://localhost:4000/docentes/filtro/facultad-especialidad?id_especialidad=${especialidadSeleccionada.id_especialidad}`);
+                        setFacultades(res.data.facultad);
+                    } catch (error) {
+                        console.error('Error al obtener facultad:', error);
+                    }
+                }
+            }
+        };
+
+        obtenerFacultadDeEspecialidad();
+    }, [formData.especialidad]);
+
 
     return (
         <div className="modal-container">
             <div
                 className={`modal-overlay ${modalExiting ? '' : 'active'}`}
-                onClick={cerrarModalCrearAlumno}
+                onClick={cerrarModalCrearDocente}
             ></div>
 
             <div className={`modal-content ${modalExiting ? 'modal-exit' : 'modal-enter'}`}>
@@ -83,9 +128,9 @@ export function ModalCrearAlumno({ cerrarModalCrearAlumno, modalExiting, actuali
                         <svg xmlns="http://www.w3.org/2000/svg" className="modal-icon" viewBox="0 0 20 20" fill="currentColor">
                             <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
                         </svg>
-                        Nuevo Alumno
+                        Nuevo Docente
                     </h2>
-                    <button onClick={cerrarModalCrearAlumno} className="close-button">
+                    <button onClick={cerrarModalCrearDocente} className="close-button">
                         ✕
                     </button>
                 </div>
@@ -94,12 +139,12 @@ export function ModalCrearAlumno({ cerrarModalCrearAlumno, modalExiting, actuali
                     <form className="modal-form" onSubmit={handleSubmit}>
                         <div className="form-row">
                             <div className="form-group">
-                                <label>Código de Alumno</label>
+                                <label>Código de Docente</label>
                                 <input type="text"
-                                    name="codigo_alumno"
-                                    value={formData.codigo_alumno}
+                                    name="codigo_docente"
+                                    value={formData.codigo_docente}
                                     onChange={handleChange}
-                                    placeholder="Ej: A12345" required/>
+                                    placeholder="Ej: DOC000" required />
                             </div>
                             <div className="form-group">
                                 <label>Dni</label>
@@ -117,7 +162,7 @@ export function ModalCrearAlumno({ cerrarModalCrearAlumno, modalExiting, actuali
                                     name="nombre"
                                     value={formData.nombre}
                                     onChange={handleChange}
-                                    placeholder="Nombres del alumno" required/>
+                                    placeholder="Nombres del docente" required />
                             </div>
                             <div className="form-group">
                                 <label>Apellido Paterno</label>
@@ -166,30 +211,32 @@ export function ModalCrearAlumno({ cerrarModalCrearAlumno, modalExiting, actuali
 
                         <div className="form-row">
                             <div className="form-group">
-                                <label>Carrera</label>
-                                <select 
-                                    name="carrera"
-                                    value={formData.carrera}
+                                <label>Facultad</label>
+                                <select
+                                    name="facultad"
+                                    value={formData.facultad}
                                     onChange={handleChange} required
                                 >
-                                    <option value="">Seleccionar carrera</option>
-                                    {especialidad.map((item) => (
-                                        <option key={item.id_especialidad} value={item.nom_especialidad}>
-                                            {item.nom_especialidad}
+                                    <option value="">Seleccionar facultad</option>
+                                    {facultades.map((fac) => (
+                                        <option key={fac.id_facultad} value={fac.abrev_facultad}>
+                                            {fac.nom_facultad}
                                         </option>
                                     ))}
                                 </select>
                             </div>
                             <div className="form-group">
-                                <label>Ciclo</label>
+                                <label>Especialidad</label>
                                 <select
-                                    name="ciclo"
-                                    value={formData.ciclo}
+                                    name="especialidad"
+                                    value={formData.especialidad}
                                     onChange={handleChange} required
                                 >
-                                    <option value="">Seleccionar ciclo</option>
-                                    {[...Array(10)].map((_, i) => (
-                                        <option key={i + 1} value={i + 1}>Ciclo {i + 1}</option>
+                                    <option value="">Seleccionar carrera</option>
+                                    {especialidades.map((esp) => (
+                                        <option key={esp.id_especialidad} value={esp.nom_especialidad}>
+                                            {esp.nom_especialidad}
+                                        </option>
                                     ))}
                                 </select>
                             </div>
@@ -198,7 +245,7 @@ export function ModalCrearAlumno({ cerrarModalCrearAlumno, modalExiting, actuali
                             <button
                                 className="modal-button cancel"
                                 type="button"
-                                onClick={cerrarModalCrearAlumno}
+                                onClick={cerrarModalCrearDocente}
                                 disabled={submitting}
                             >
                                 Cancelar
@@ -208,119 +255,181 @@ export function ModalCrearAlumno({ cerrarModalCrearAlumno, modalExiting, actuali
                                 type="submit"
                                 disabled={submitting}
                             >
-                                {submitting ? 'Guardando...' : 'Guardar Alumno'}
+                                {submitting ? 'Guardando...' : 'Guardar Docente'}
                             </button>
                         </div>
                     </form>
                 </div>
             </div>
         </div>
-    );
+    )
 }
 
-export function ModalEditarAlumno({ cerrarModalEditarAlumno, modalExitingEditar, dniAlumnoEditar, actualizarAlumnos, onAlumnoEditado }) {
+
+export function ModalEditarDocente({ cerrarModalEditarDocente, modalExitingEditar, dniDocenteEditar, actualizarDocentes, onDocenteEditado }) {
     const [formData, setFormData] = useState({
         id_usuario: '',
-        codigo_alumno: '',
+        codigo_docente: '',
         dni: '',
         nombre: '',
         apellido_paterno: '',
         apellido_materno: '',
         fecha_nacimiento: '',
         email: '',
-        ciclo: '',
-        carrera: ''
+        facultad: '',
+        especialidad: ''
     });
 
     const [submitting, setSubmitting] = useState(false);
-    const [especialidad, setEspecialidad] = useState([]);
+    const [facultades, setFacultades] = useState([]);
+    const [especialidades, setEspecialidades] = useState([]);
+
 
     useEffect(() => {
-        axios.get('http://localhost:4000/alumnos/especialidades')
-            .then(response => {
-                setEspecialidad(response.data.especialidades);
-            })
-            .catch(error => {
-                console.error('Error al cargar especialidades:', error);
-            });
+        const obtenerDatosIniciales = async () => {
+            try {
+                const [facultadesRes, especialidadesRes] = await Promise.all([
+                    axios.get('http://localhost:4000/docentes/facultades'),
+                    axios.get('http://localhost:4000/docentes/especialidades'),
+                ]);
+                setFacultades(facultadesRes.data.facultades);
+                setEspecialidades(especialidadesRes.data.especialidades);
+            } catch (error) {
+                console.error('Error al cargar datos iniciales:', error);
+            }
+        };
+
+        obtenerDatosIniciales();
     }, []);
 
     useEffect(() => {
-        if (dniAlumnoEditar) {
-            // Aquí traemos los datos del alumno
-            axios.get(`http://localhost:4000/alumnos/${dniAlumnoEditar}`)
+        if (dniDocenteEditar) {
+            // Aquí traemos los datos del docente
+            axios.get(`http://localhost:4000/docentes/${dniDocenteEditar}`)
                 .then(response => {
                     if (response.data.length > 0) {
-                        const alumno = response.data[0]; // porque estás retornando un array
+                        const docente = response.data[0];
                         setFormData({
-                            id_usuario: alumno.id_usuario || '',
-                            codigo_alumno: alumno.codigo_alumno || '',
-                            dni: alumno.dni || '',
-                            nombre: alumno.nombre || '',
-                            apellido_paterno: alumno.apellido_paterno || '',
-                            apellido_materno: alumno.apellido_materno || '',
-                            fecha_nacimiento: alumno.fecha_nacimiento ? alumno.fecha_nacimiento.split('T')[0] : '',
-                            email: alumno.email || '',
-                            ciclo: alumno.ciclo || '',
-                            carrera: alumno.carrera || ''
+                            id_usuario: docente.id_usuario,
+                            codigo_docente: docente.codigo_docente,
+                            dni: docente.dni,
+                            nombre: docente.nombre,
+                            apellido_paterno: docente.apellido_paterno,
+                            apellido_materno: docente.apellido_materno,
+                            fecha_nacimiento: docente.fecha_nacimiento
+                                ? docente.fecha_nacimiento.split('T')[0]
+                                : '',
+                            email: docente.email,
+                            facultad: docente.facultad,
+                            especialidad: docente.especialidad
                         });
                     }
                 })
                 .catch(error => {
-                    console.error('Error al cargar el alumno:', error);
+                    console.error('Error al cargar el docente:', error);
                 });
         }
-    }, [dniAlumnoEditar]);
+    }, [dniDocenteEditar]);
+
+    useEffect(() => {
+        const filtrarEspecialidades = async () => {
+            if (formData.facultad) {
+                const facultadSeleccionada = facultades.find(f => f.abrev_facultad === formData.facultad);
+                if (facultadSeleccionada) {
+                    try {
+                        const res = await axios.get(`http://localhost:4000/docentes/filtro/facultad-especialidad?id_facultad=${facultadSeleccionada.id_facultad}`);
+                        setEspecialidades(res.data.especialidades);
+                    } catch (error) {
+                        console.error('Error al filtrar especialidades:', error);
+                    }
+                }
+            }
+        };
+
+        filtrarEspecialidades();
+    }, [formData.facultad]);
+
+
+    useEffect(() => {
+        const obtenerFacultadDeEspecialidad = async () => {
+            if (formData.especialidad && !formData.facultad) {
+                const especialidadSeleccionada = especialidades.find(e => e.nom_especialidad === formData.especialidad);
+                if (especialidadSeleccionada) {
+                    try {
+                        const res = await axios.get(`http://localhost:4000/docentes/filtro/facultad-especialidad?id_especialidad=${especialidadSeleccionada.id_especialidad}`);
+                        setFacultades(res.data.facultad);
+                    } catch (error) {
+                        console.error('Error al obtener facultad:', error);
+                    }
+                }
+            }
+        };
+
+        obtenerFacultadDeEspecialidad();
+    }, [formData.especialidad]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData({
             ...formData,
-            [name]: name === 'ciclo' ? parseInt(value, 10) : value
+            [name]: value,
         });
     };
 
+    // Añade un console.log para ver exactamente qué datos se están enviando
     const handleSubmit = async (e) => {
         e.preventDefault();
         setSubmitting(true);
 
         try {
-            await axios.patch(`http://localhost:4000/alumnos/${formData.id_usuario}`, formData);
-            cerrarModalEditarAlumno();
-            setTimeout(() => {
-                if (onAlumnoEditado) onAlumnoEditado(true);
-                if (actualizarAlumnos) actualizarAlumnos();
-            }, 300);
+            // Agrega este console.log para ver qué datos estás enviando
+            console.log("Datos a enviar:", formData);
+            console.log("ID de usuario:", formData.id_usuario);
+
+            const response = await axios.patch(`http://localhost:4000/docentes/${formData.id_usuario}`, formData);
+            console.log("Respuesta del backend:", response.data);
+
+            // No cierres el modal inmediatamente para poder ver si hay errores
+            // Solo ciérralo si todo fue exitoso
+            if (response && response.status === 200) {
+                cerrarModalEditarDocente();
+                setTimeout(() => {
+                    if (onDocenteEditado) onDocenteEditado(true);
+                    if (actualizarDocentes) actualizarDocentes();
+                }, 300);
+            }
         } catch (error) {
-            console.error('Error al editar el alumno:', error);
-            cerrarModalEditarAlumno();
+            console.error('Error al editar el docente:', error);
+            // Muestra más detalles del error
+            if (error.response) {
+                console.error('Detalles del error:', error.response.data);
+            }
+            cerrarModalEditarDocente();
             setTimeout(() => {
-                if (onAlumnoEditado) onAlumnoEditado(false);
+                if (onDocenteEditado) onDocenteEditado(false);
             }, 300);
         } finally {
             setSubmitting(false);
         }
     };
 
+
     return (
         <div className="modal-container">
             <div
                 className={`modal-overlay ${modalExitingEditar ? '' : 'active'}`}
-                onClick={cerrarModalEditarAlumno}
+                onClick={cerrarModalEditarDocente}
             ></div>
 
             <div className={`modal-content ${modalExitingEditar ? 'modal-exit' : 'modal-enter'}`}>
                 <div className="modal-header">
                     <h2 className="modal-title">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="modal-icon" viewBox="0 0 24 24">
-                            <rect x="2" y="2" width="20" height="20" rx="2" fill="none" stroke="currentColor" stroke-width="2" />
-                            <path d="M14.5 5.5L18.5 9.5L9.5 18.5H5.5V14.5L14.5 5.5Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" />
-                            <line x1="12" y1="8" x2="16" y2="12" stroke="currentColor" stroke-width="2" />
+                        <svg xmlns="http://www.w3.org/2000/svg" className="modal-icon" viewBox="0 0 20 20" fill="currentColor">
+                            <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
                         </svg>
-
-                        Editar Alumno
+                        Editar Docente
                     </h2>
-                    <button onClick={cerrarModalEditarAlumno} className="close-button">
+                    <button onClick={cerrarModalEditarDocente} className="close-button">
                         ✕
                     </button>
                 </div>
@@ -329,12 +438,12 @@ export function ModalEditarAlumno({ cerrarModalEditarAlumno, modalExitingEditar,
                     <form className="modal-form" onSubmit={handleSubmit}>
                         <div className="form-row">
                             <div className="form-group">
-                                <label>Código de Alumno</label>
+                                <label>Código de Docente</label>
                                 <input type="text"
-                                    name="codigo_alumno"
-                                    value={formData.codigo_alumno}
+                                    name="codigo_docente"
+                                    value={formData.codigo_docente}
                                     onChange={handleChange}
-                                    placeholder="Ej: A12345" required/>
+                                    placeholder="Ej: DOC000" required />
                             </div>
                             <div className="form-group">
                                 <label>Dni</label>
@@ -342,7 +451,7 @@ export function ModalEditarAlumno({ cerrarModalEditarAlumno, modalExitingEditar,
                                     name="dni"
                                     value={formData.dni}
                                     onChange={handleChange}
-                                    placeholder="Ej: 99999999" required />
+                                    placeholder="Ej: 99999999" required maxLength={8} />
                             </div>
                         </div>
                         <div className="form-row">
@@ -352,7 +461,7 @@ export function ModalEditarAlumno({ cerrarModalEditarAlumno, modalExitingEditar,
                                     name="nombre"
                                     value={formData.nombre}
                                     onChange={handleChange}
-                                    placeholder="Nombres del alumno" required />
+                                    placeholder="Nombres del docente" required />
                             </div>
                             <div className="form-group">
                                 <label>Apellido Paterno</label>
@@ -360,7 +469,7 @@ export function ModalEditarAlumno({ cerrarModalEditarAlumno, modalExitingEditar,
                                     name="apellido_paterno"
                                     value={formData.apellido_paterno}
                                     onChange={handleChange}
-                                    placeholder="Apellido paterno" required/>
+                                    placeholder="Apellido paterno" required />
                             </div>
                         </div>
                         <div className='form-row'>
@@ -377,7 +486,7 @@ export function ModalEditarAlumno({ cerrarModalEditarAlumno, modalExitingEditar,
                                 <input type="date"
                                     name="fecha_nacimiento"
                                     value={formData.fecha_nacimiento}
-                                    onChange={handleChange} required/>
+                                    onChange={handleChange} required />
                             </div>
                         </div>
                         <div className="form-row">
@@ -393,30 +502,32 @@ export function ModalEditarAlumno({ cerrarModalEditarAlumno, modalExitingEditar,
 
                         <div className="form-row">
                             <div className="form-group">
-                                <label>Carrera</label>
+                                <label>Facultad</label>
                                 <select
-                                    name="carrera"
-                                    value={formData.carrera}
+                                    name="facultad"
+                                    value={formData.facultad}
                                     onChange={handleChange} required
                                 >
-                                    <option value="">Seleccionar carrera</option>
-                                    {especialidad.map((item) => (
-                                        <option key={item.id_especialidad} value={item.nom_especialidad}>
-                                            {item.nom_especialidad}
+                                    <option value="">Seleccionar facultad</option>
+                                    {facultades.map((fac) => (
+                                        <option key={fac.id_facultad} value={fac.abrev_facultad}>
+                                            {fac.nom_facultad}
                                         </option>
                                     ))}
                                 </select>
                             </div>
                             <div className="form-group">
-                                <label>Ciclo</label>
+                                <label>Especialidad</label>
                                 <select
-                                    name="ciclo"
-                                    value={formData.ciclo}
+                                    name="especialidad"
+                                    value={formData.especialidad}
                                     onChange={handleChange} required
                                 >
-                                    <option value="">Seleccionar ciclo</option>
-                                    {[...Array(10)].map((_, i) => (
-                                        <option key={i + 1} value={i + 1}>Ciclo {i + 1}</option>
+                                    <option value="">Seleccionar carrera</option>
+                                    {especialidades.map((esp) => (
+                                        <option key={esp.id_especialidad} value={esp.nom_especialidad}>
+                                            {esp.nom_especialidad}
+                                        </option>
                                     ))}
                                 </select>
                             </div>
@@ -425,7 +536,7 @@ export function ModalEditarAlumno({ cerrarModalEditarAlumno, modalExitingEditar,
                             <button
                                 className="modal-button cancel"
                                 type="button"
-                                onClick={cerrarModalEditarAlumno}
+                                onClick={cerrarModalEditarDocente}
                                 disabled={submitting}
                             >
                                 Cancelar
@@ -435,7 +546,7 @@ export function ModalEditarAlumno({ cerrarModalEditarAlumno, modalExitingEditar,
                                 type="submit"
                                 disabled={submitting}
                             >
-                                {submitting ? 'Editando...' : 'Editar Alumno'}
+                                {submitting ? 'Guardando...' : 'Editar Docente'}
                             </button>
                         </div>
                     </form>
@@ -445,32 +556,35 @@ export function ModalEditarAlumno({ cerrarModalEditarAlumno, modalExitingEditar,
     );
 }
 
-export function ModalEliminarAlumno({ cerrarModalEliminarAlumno, modalExitingEliminar, idUsuarioEliminar, actualizarAlumnos, onAlumnoEliminado }) {
+export function ModalEliminarDocente({ cerrarModalEliminarDocente, modalExitingEliminar, idUsuarioEliminar, actualizarDocentes, onDocenteEliminado }) {
     const [submitting, setSubmitting] = useState(false);
 
     const handleEliminar = async () => {
         setSubmitting(true);
+        console.log('ID a eliminar:', idUsuarioEliminar);
         try {
-            await axios.delete(`http://localhost:4000/alumnos/${idUsuarioEliminar}`);
-            cerrarModalEliminarAlumno();
+            await axios.delete(`http://localhost:4000/docentes/${idUsuarioEliminar}`);
+            cerrarModalEliminarDocente();
             setTimeout(() => {
-                if (onAlumnoEliminado) onAlumnoEliminado(true);
-                if (actualizarAlumnos) actualizarAlumnos();
+                if (onDocenteEliminado) onDocenteEliminado(true);
+                if (actualizarDocentes) actualizarDocentes();
             }, 300);
         } catch (error) {
-            console.error('Error al eliminar el alumno:', error);
+            console.error('Error al eliminar el docente:', error);
+            cerrarModalEliminarDocente();
             setTimeout(() => {
-                if (onAlumnoEliminado) onAlumnoEliminado(false);
+                if (onDocenteEliminado) onDocenteEliminado(false);
             }, 300);
         } finally {
             setSubmitting(false);
         }
     };
+
     return (
         <div className="modal-container">
             <div
                 className={`modal-overlay ${modalExitingEliminar ? '' : 'active'}`}
-                onClick={cerrarModalEliminarAlumno}
+                onClick={cerrarModalEliminarDocente}
             ></div>
 
             <div className={`modal-content modal-small ${modalExitingEliminar ? 'modal-exit' : 'modal-enter'}`}>
@@ -481,14 +595,14 @@ export function ModalEliminarAlumno({ cerrarModalEliminarAlumno, modalExitingEli
                         </svg>
                         Advertencia
                     </h2>
-                    <button onClick={cerrarModalEliminarAlumno} className="close-button">
+                    <button onClick={cerrarModalEliminarDocente} className="close-button">
                         ✕
                     </button>
                 </div>
 
                 <div className="modal-body">
                     <div className="confirm-delete">
-                        <p className="warning-message">¿Estás seguro de que deseas eliminar este alumno?</p>
+                        <p className="warning-message">¿Estás seguro de que deseas eliminar este docente?</p>
                         <p className="warning-text">Esta acción no se puede deshacer.</p>
                     </div>
                 </div>
@@ -497,7 +611,7 @@ export function ModalEliminarAlumno({ cerrarModalEliminarAlumno, modalExitingEli
                     <button
                         className="modal-button cancel"
                         type="button"
-                        onClick={cerrarModalEliminarAlumno}
+                        onClick={cerrarModalEliminarDocente}
                         disabled={submitting}
                     >
                         Cancelar
@@ -513,5 +627,5 @@ export function ModalEliminarAlumno({ cerrarModalEliminarAlumno, modalExitingEli
                 </div>
             </div>
         </div>
-    )
+    );
 }

@@ -391,7 +391,7 @@ export default function AlumnoCrud() {
                                 </tr>
                             ) : (
                                 currentAlumnos.map((alumno) => (
-                                    <tr key={alumno.id} className="hover:bg-gray-50 transition-colors">
+                                    <tr key={alumno.id_usuario} className="hover:bg-gray-50 transition-colors">
                                         <td className="px-4 py-4">
                                             <input
                                                 type="checkbox"

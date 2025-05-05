@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import AppLayout from "../AppLayout";
+import { ModalCrearDocente, ModalEditarDocente, ModalEliminarDocente } from "./ModalesDocente";
+import Alert from "./../notification/Notification";
 /* import './alumno.css'; */
 
 // Iconos personalizados
@@ -42,8 +44,16 @@ export function DocenteCrud() {
     const [sortConfig, setSortConfig] = useState({ key: null, direction: 'ascending' });
     const [selectedDocentes, setSelectedDocentes] = useState([]);
     const [selectAll, setSelectAll] = useState(false);
-    const [mostrarModal, setMostrarModal] = useState(false);
-
+    const [mostrarModalCrearDocente, setMostrarModalCrearDocente] = useState(false);
+    const [dniDocenteEditar, setDniDocenteEditar] = useState(null);
+    const [idUsuarioEliminar, setIdUsuarioEliminar] = useState(null);
+    const [mostrarModalEditarDocente, setMostrarModalEditarDocente] = useState(false);
+    const [mostrarModalEliminarDocente, setMostrarModalEliminarDocente] = useState(false);
+    const [modalExitingEditar, setModalExitingEditar] = useState(false);
+    const [modalExitingEliminar, setModalExitingEliminar] = useState(false);
+    const [modalExiting, setModalExiting] = useState(false);
+    const [alert, setAlert] = useState({ show: false, message: "", type: "" });
+    
     // Obtener datos de los docentes
     useEffect(() => {
         setLoading(true);
@@ -67,8 +77,88 @@ export function DocenteCrud() {
         setSortConfig({ key, direction });
     };
 
-    const abrirModal = () => setMostrarModal(true);
-    const cerrarModal = () => setMostrarModal(false);
+    const actualizarDocentes = () => {
+        setLoading(true);
+        axios.get("http://localhost:4000/docentes")
+            .then((response) => {
+                setDocentes(response.data);
+                setLoading(false);
+            })
+            .catch((err) => {
+                console.error("Error al obtener los docentes", err);
+                setLoading(false);
+                showAlert("Error al cargar los docentes. Por favor, intente nuevamente.", "error");
+            });
+    };    
+
+    const abrirModalCrearDocente = () => setMostrarModalCrearDocente(true);
+
+    const cerrarModalCrearDocente = () => {
+        setModalExiting(true);
+        setTimeout(() => {
+            setMostrarModalCrearDocente(false);
+            setModalExiting(false);
+        }, 500);
+    };
+
+    const onDocenteCreado = (success = true) => {
+        if (success) {
+            showAlert("Docente creado correctamente", "success");
+        } else {
+            showAlert("Error al crear el docente. Inténtalo de nuevo.", "error");
+        }
+    };
+
+    const onDocenteEditado = (success = true) => {
+        if (success) {
+            showAlert("Docente editado correctamente", "success");
+        } else {
+            showAlert("Error al editar el docente. Inténtalo de nuevo.", "error");
+        }
+    };
+
+    const onDocenteEliminado = (success = true) => {
+        if (success) {
+            showAlert("Docente eliminado correctamente", "success");
+        } else {
+            showAlert("Error al eliminar el docente. Inténtalo de nuevo.", "error");
+        }
+    };
+
+    const abrirModalEditarDocente = (dni) => {
+        setDniDocenteEditar(dni);
+        setMostrarModalEditarDocente(true);
+    };
+
+    const cerrarModalEditarDocente = () => {
+        setModalExitingEditar(true);
+        setTimeout(() => {
+            setMostrarModalEditarDocente(false);
+            setModalExitingEditar(false);
+        }, 500);
+    }
+
+    const abrirModalEliminarDocente = (id_usuario) => {
+        setIdUsuarioEliminar(id_usuario);
+        setMostrarModalEliminarDocente(true);
+    };
+
+    const cerrarModalEliminarDocente = () => {
+        setModalExitingEliminar(true);
+        setTimeout(() => {
+            setMostrarModalEliminarDocente(false);
+            setModalExitingEliminar(false);
+        }, 500);
+    }
+
+    //Funcion para mostrar alertas
+    const showAlert = (message, type = "info") => {
+        setAlert({ show: true, message, type });
+    };
+
+    const closeAlert = () => {
+        setAlert({ ...alert, show: false });
+    };
 
     // Aplicar ordenamiento
     const sortedDocente = React.useMemo(() => {
@@ -94,9 +184,10 @@ export function DocenteCrud() {
                 docente.nombre?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 docente.apellido_paterno?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 docente.apellido_materno?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                docente.codigo_docente?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                docente.facultad?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                docente.especialidad?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 `${docente.nombre} ${docente.apellido_paterno} ${docente.apellido_materno}`.toLowerCase().includes(searchTerm.toLowerCase())
-                /* docente.carrera?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                docente.codigo_alumno?.toLowerCase().includes(searchTerm.toLowerCase()) */
             );
         });
     }, [sortedDocente, searchTerm]);
@@ -179,7 +270,7 @@ export function DocenteCrud() {
 
                         <button
                             className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg shadow hover:from-blue-700 hover:to-blue-800 transition-all"
-                            onClick={abrirModal}
+                            onClick={abrirModalCrearDocente}
                             onMouseOver={(e) => e.currentTarget.classList.add('shadow-lg')}
                         >
                             <span>Nuevo Docente</span>
@@ -226,11 +317,22 @@ export function DocenteCrud() {
                                 </th>
                                 <th
                                     className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
-                                    onClick={() => requestSort('codigo_alumno')}
+                                    onClick={() => requestSort('codigo_docente')}
                                 >
                                     <div className="flex items-center gap-1">
                                         Código
-                                        {sortConfig.key === 'codigo_alumno' && (
+                                        {sortConfig.key === 'codigo_docente' && (
+                                            <span>{sortConfig.direction === 'ascending' ? '↑' : '↓'}</span>
+                                        )}
+                                    </div>
+                                </th>
+                                <th
+                                    className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                                    onClick={() => requestSort('facultad')}
+                                >
+                                    <div className="flex items-center gap-1">
+                                        Facultad
+                                        {sortConfig.key === 'facultad' && (
                                             <span>{sortConfig.direction === 'ascending' ? '↑' : '↓'}</span>
                                         )}
                                     </div>
@@ -246,17 +348,6 @@ export function DocenteCrud() {
                                         )}
                                     </div>
                                 </th>
-                                {/* <th
-                                    className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
-                                    onClick={() => requestSort('ciclo')}
-                                >
-                                    <div className="flex items-center gap-1">
-                                        Ciclo
-                                        {sortConfig.key === 'ciclo' && (
-                                            <span>{sortConfig.direction === 'ascending' ? '↑' : '↓'}</span>
-                                        )}
-                                    </div>
-                                </th> */}
                                 <th
                                     className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                                     onClick={() => requestSort('created_at')}
@@ -303,7 +394,7 @@ export function DocenteCrud() {
                                 </tr>
                             ) : (
                                 currentDocentes.map((docente) => (
-                                    <tr key={docente.id} className="hover:bg-gray-50 transition-colors">
+                                    <tr key={docente.id_usuario} className="hover:bg-gray-50 transition-colors">
                                         <td className="px-4 py-4">
                                             <input
                                                 type="checkbox"
@@ -329,13 +420,11 @@ export function DocenteCrud() {
                                             </span>
                                         </td>
                                         <td className="px-4 py-4 whitespace-nowrap">
-                                            <div className="text-sm font-medium text-gray-900">{docente.especialidad || 'N/A'}</div>
+                                            <div className="text-sm font-medium text-gray-900">{docente.facultad || 'N/A'}</div>
                                         </td>
-{/*                                         <td className="px-4 py-4 whitespace-nowrap text-center">
-                                            <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-blue-100 text-blue-800 font-medium">
-                                                {docente.nombre || 'N/A'}
-                                            </span>
-                                        </td> */}
+                                        <td className="px-4 py-4 whitespace-nowrap max-w-[200px] overflow-hidden text-ellipsis">
+                                            <div className="text-sm font-medium text-gray-900 truncate">{docente.especialidad || 'N/A'}</div>
+                                        </td>
                                         <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
                                             {formatDate(docente.created_at)}
                                         </td>
@@ -347,10 +436,12 @@ export function DocenteCrud() {
                                                 <button className="text-blue-600 hover:text-blue-900 p-1 rounded-full hover:bg-blue-100 transition-colors" title="Ver">
                                                     <ViewIcon />
                                                 </button>
-                                                <button className="text-yellow-600 hover:text-yellow-900 p-1 rounded-full hover:bg-yellow-100 transition-colors" title="Editar">
-                                                    <EditIcon />
+                                                <button className="text-yellow-600 hover:text-yellow-900 p-1 rounded-full hover:bg-yellow-100 transition-colors" title="Editar"
+                                                    onClick={() => abrirModalEditarDocente(docente.dni)}>
+                                                    <EditIcon/>
                                                 </button>
-                                                <button className="text-red-600 hover:text-red-900 p-1 rounded-full hover:bg-red-100 transition-colors" title="Eliminar">
+                                                <button className="text-red-600 hover:text-red-900 p-1 rounded-full hover:bg-red-100 transition-colors" title="Eliminar"
+                                                    onClick={() => abrirModalEliminarDocente(docente.id_usuario)}>
                                                     <DeleteIcon />
                                                 </button>
                                             </div>
@@ -440,62 +531,45 @@ export function DocenteCrud() {
                 )}
             </div>
 
-            {/* Modal para nuevo docente */}
-            {mostrarModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center">
-                    {/* Fondo oscuro con desenfoque */}
-                    <div
-                        className="absolute inset-0 bg-gray-800 bg-opacity-10 transition-opacity duration-300"
-                        onClick={cerrarModal}
-                    ></div>
+            {/* Modal para agregar nuevo docente */}
+            {mostrarModalCrearDocente && (
+                <ModalCrearDocente
+                    cerrarModalCrearDocente={cerrarModalCrearDocente}
+                    modalExiting={modalExiting}
+                    onDocenteCreado={onDocenteCreado}
+                    actualizarDocentes={actualizarDocentes}
+                />
+            )}
 
-                    {/* Contenedor del modal con animación */}
-                    <div className="relative z-10 w-full max-w-lg p-6 bg-white rounded-2xl shadow-2xl transform transition-all duration-500 ease-out scale-100 opacity-100 translate-y-0 animate-slideIn">
-                        {/* Encabezado */}
-                        <div className="flex items-center justify-between pb-4 border-b">
-                            <h2 className="text-2xl font-semibold text-gray-800">Nuevo Docente</h2>
-                            <button
-                                onClick={cerrarModal}
-                                className="text-gray-400 hover:text-gray-600 transition"
-                            >
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    className="w-6 h-6"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    stroke="currentColor"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        d="M6 18L18 6M6 6l12 12"
-                                    />
-                                </svg>
-                            </button>
-                        </div>
+            {/* Modal para editar docente */}
+            {mostrarModalEditarDocente && (
+                <ModalEditarDocente 
+                    dniDocenteEditar={dniDocenteEditar}
+                    cerrarModalEditarDocente={cerrarModalEditarDocente}
+                    modalExitingEditar={modalExitingEditar}
+                    onDocenteEditado={onDocenteEditado}
+                    actualizarDocentes={actualizarDocentes}
+                />
+            )}
 
-                        {/* Cuerpo */}
-                        <div className="py-5 space-y-4">
-                            <p className="text-gray-600 text-center">Aquí irá tu formulario 👌</p>
-                        </div>
+            {/* Modal para eliminar docente */}
+            {mostrarModalEliminarDocente && (
+                <ModalEliminarDocente
+                    idUsuarioEliminar={idUsuarioEliminar}
+                    cerrarModalEliminarDocente={cerrarModalEliminarDocente}
+                    modalExitingEliminar={modalExitingEliminar}
+                    onDocenteEliminado={onDocenteEliminado}
+                    actualizarDocentes={actualizarDocentes}
+                />
+            )}
 
-                        {/* Footer */}
-                        <div className="flex justify-end gap-3 pt-5 border-t">
-                            <button
-                                onClick={cerrarModal}
-                                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition"
-                            >
-                                Cancelar
-                            </button>
-                            <button
-                                className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow transition"
-                            >
-                                Guardar
-                            </button>
-                        </div>
-                    </div>
-                </div>
+            {/* Alerta */}
+            {alert.show && (
+                <Alert
+                    message={alert.message}
+                    type={alert.type}
+                    onClose={closeAlert}
+                />
             )}
         </AppLayout>
     );
