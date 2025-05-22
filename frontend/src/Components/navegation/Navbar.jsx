@@ -19,13 +19,13 @@ const Navegationbar = () => {
             <div className="h-16 w-65 flex items-center justify-between border-b border-gray-100">
                 <div className="flex items-center">
                     <div className="h-9 w-9 rounded-lg bg-red-500 text-white flex items-center justify-center font-semibold text-xl">
-                        SE
+                        IU
                     </div>
-                    <h1 className="ml-2 font-semibold text-xl text-gray-800">Sistema Escolar</h1>
+                    <h1 className="ml-2 font-semibold text-xl text-gray-800">Intranet University</h1>
                 </div>
                 <button
                     className="lg:hidden text-gray-500 hover:text-gray-700"
-                    onClick={() => setIsOpen(false)}
+                    
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />

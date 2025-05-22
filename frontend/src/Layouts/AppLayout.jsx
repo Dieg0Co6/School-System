@@ -1,9 +1,9 @@
 // Componente de diseño principal de la aplicación
 import React, { useState, useEffect } from 'react';
-import Navbar from './navegation/Navbar';
-import Sidebar from './navegation/Sidebar';
+import Navbar from '../Components/navegation/Navbar';
+import Sidebar from '../Components/navegation/Sidebar';
 
-const AppLayout = ({ children }) => {
+const AppLayout = ({ children, usuario }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Ejemplo de datos de usuario
@@ -40,7 +40,7 @@ const AppLayout = ({ children }) => {
     <div className="min-h-screen bg-gray-50">
       <Navbar toggleSidebar={() => setSidebarOpen(!sidebarOpen)} userData={userData} />
 
-      <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
+      <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} usuario={usuario} />
       <main className="pt-16 pl-0 lg:pl-64 transition-all duration-300 ease-in-out">
         <div className="p-6">{children}</div>
       </main>

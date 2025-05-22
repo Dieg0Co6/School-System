@@ -1,20 +1,10 @@
-import React, { useState } from "react";
-import AppLayout from '../AppLayout';
+import AppLayout from '../../Layouts/AppLayout';
 /* import "bootstrap/dist/css/bootstrap.min.css"; */
-import {
-    FaBars
-} from "react-icons/fa";
-import Sidebar from "../navegation/Sidebar";
 
-function DashComp() {
-    const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-    
-    const toggleSidebar = () => {
-        setIsSidebarOpen(!isSidebarOpen);
-    };
+function DashComp({ usuario }) {
 
     return (
-        <AppLayout>
+        <AppLayout usuario={usuario}>
       <h1 className="text-2xl font-bold text-gray-800 mb-6">Panel de Control</h1>
       
       {/* Tarjetas de estadísticas */}

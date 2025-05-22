@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import AppLayout from "../AppLayout";
+import AppLayout from "../../Layouts/AppLayout";
 import { ModalCrearDocente, ModalEditarDocente, ModalEliminarDocente } from "./ModalesDocente";
 import Alert from "./../notification/Notification";
 /* import './alumno.css'; */
@@ -35,7 +35,7 @@ const ViewIcon = () => (
 );
 
 
-export function DocenteCrud() {
+export function DocenteCrud({usuario}) {
     const [docentes, setDocentes] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
@@ -234,7 +234,7 @@ export function DocenteCrud() {
     };
 
     return (
-        <AppLayout>
+        <AppLayout usuario={usuario}>
             <div className="w-full p-6 bg-white rounded-lg shadow-sm">
                 {/* Cabecera */}
                 <div className="mb-8">
@@ -409,7 +409,8 @@ export function DocenteCrud() {
                                                     {docente.nombre ? docente.nombre.charAt(0) : "A"}
                                                 </div>
                                                 <div className="ml-3">
-                                                    <div className="font-medium text-gray-900">{`${docente.nombre} ${docente.apellido_paterno} ${docente.apellido_materno}` || 'N/A'}</div>
+                                                    <div className="font-medium text-gray-900">{(docente.nombre && docente.apellido_paterno && docente.apellido_materno)
+                                                            ? `${docente.nombre} ${docente.apellido_paterno} ${docente.apellido_materno}` : 'N/A'}</div>
                                                     <div className="text-sm text-gray-500">{docente.email || 'Sin email'}</div>
                                                 </div>
                                             </div>

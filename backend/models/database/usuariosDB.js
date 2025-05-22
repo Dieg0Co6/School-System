@@ -66,6 +66,13 @@ class Usuario {
 
         return results[0];
     }
+
+    static async BuscarRolxUsuario({id_usuario}){
+        const conn = await conexion;
+        const [result] = await conn.query('SELECT * from rol_usuarios INNER JOIN rol ON rol.id_rol = rol_usuarios.id_rol WHERE id_usuario = ?', [id_usuario]);
+        return result;
+    }
+
 }
 
 module.exports = Usuario

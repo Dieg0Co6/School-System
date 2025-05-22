@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import AppLayout from "../AppLayout";
+import AppLayout from "../../Layouts/AppLayout";
 import Alert from "./../notification/Notification";
-import {ModalCrearAlumno, ModalEditarAlumno, ModalEliminarAlumno} from "./ModalesAlumno";
+import { ModalCrearAlumno, ModalEditarAlumno, ModalEliminarAlumno } from "./ModalesAlumno";
 
 // Iconos personalizados
 const SearchIcon = () => (
@@ -33,7 +33,7 @@ const ViewIcon = () => (
     </svg>
 );
 
-export default function AlumnoCrud() {
+export default function AlumnoCrud({usuario}) {
     const [alumnos, setAlumnos] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
@@ -231,7 +231,7 @@ export default function AlumnoCrud() {
     };
 
     return (
-        <AppLayout>
+        <AppLayout usuario={usuario}>
             <div className="w-full p-6 bg-white rounded-lg shadow-sm">
                 {/* Cabecera */}
                 <div className="mb-8">
@@ -407,7 +407,9 @@ export default function AlumnoCrud() {
                                                 </div>
                                                 <div className="ml-3">
                                                     <div className="font-medium text-gray-900">
-                                                        {`${alumno.nombre} ${alumno.apellido_paterno} ${alumno.apellido_materno}` || 'N/A'}
+                                                        {(alumno.nombre && alumno.apellido_paterno && alumno.apellido_materno)
+                                                            ? `${alumno.nombre} ${alumno.apellido_paterno} ${alumno.apellido_materno}`
+                                                            : 'N/A'}
                                                     </div>
                                                     <div className="text-sm text-gray-500">{alumno.email || 'Sin email'}</div>
                                                 </div>

@@ -1,4 +1,4 @@
-import { useState, useEffect, use } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 import './alumno.css';
 
@@ -313,9 +313,9 @@ export function ModalEditarAlumno({ cerrarModalEditarAlumno, modalExitingEditar,
                 <div className="modal-header">
                     <h2 className="modal-title">
                         <svg xmlns="http://www.w3.org/2000/svg" className="modal-icon" viewBox="0 0 24 24">
-                            <rect x="2" y="2" width="20" height="20" rx="2" fill="none" stroke="currentColor" stroke-width="2" />
-                            <path d="M14.5 5.5L18.5 9.5L9.5 18.5H5.5V14.5L14.5 5.5Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" />
-                            <line x1="12" y1="8" x2="16" y2="12" stroke="currentColor" stroke-width="2" />
+                            <rect x="2" y="2" width="20" height="20" rx="2" fill="none" stroke="currentColor" strokeWidth="2" />
+                            <path d="M14.5 5.5L18.5 9.5L9.5 18.5H5.5V14.5L14.5 5.5Z" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
+                            <line x1="12" y1="8" x2="16" y2="12" stroke="currentColor" strokeWidth="2" />
                         </svg>
 
                         Editar Alumno

@@ -62,8 +62,10 @@ class usuarioController {
 
         try {
             const user = await Usuario.Buscar({ email });
-            const token = jwt.sign({id:user._id,email: user.email}, config.jwt.secret,{
-                expiresIn: '1h'
+            const rol = await Usuario.BuscarRolxUsuario({ id_usuario: user.id_usuario });
+            const nombre_rol = rol.length > 0 ? rol[0].nombre : null;
+            const token = jwt.sign({id:user.id_usuario,email: user.email, rol: nombre_rol}, config.jwt.secret,{
+                expiresIn: '2h'
             })
             if (!user) {
                 return res.status(401).json({ error: "Credenciales incorrectas" });
@@ -83,7 +85,7 @@ class usuarioController {
                     httpOnly: true, //LAS COOKIES SOLO SE VAN A ACCEDER EN EL SERVIDOR
                     secure: config.app.cookieSecure === 'produccion', //LA COOKIE SOLO SE PUEDE HACER EN HTTPS
                     sameSite: 'strict', //LA COOKIE SOLO SE PUEDE ACCEDER EN EL MISMO DOMINIO
-                    maxAge: 1000 * 60 * 60 //LA COOKIE SOLO TENDRÁ PLAZO DE TIEMPO 1 HORA
+                    maxAge: 1000 * 60 * 120 //LA COOKIE SOLO TENDRÁ PLAZO DE TIEMPO 2 HORAS
                 }).status(200).json({ message: "Login exitoso", publicUser, token});
             } else {
                 res.status(401).json({ error: "Credenciales incorrectas" });
@@ -105,8 +107,6 @@ class usuarioController {
             console.error("Error del logout del usuario:", error);
             res.status(500).send("Error del logout del usuario");
         }
-        
-    
     }
     
 }
