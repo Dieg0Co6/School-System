@@ -58,13 +58,18 @@ export default function TablaAsistenciaAdministrador({cursos, loading, formData}
                                     {formData.especialidad}
                                 </td>
                                 <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
-                                    {curso.ciclo}
+                                    <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-blue-100 text-blue-800 font-medium">
+                                        {curso.ciclo}
+                                    </span>
                                 </td>
                                 <td className="px-4 py-3 whitespace-nowrap text-sm text-center cursor-pointer flex justify-center leading-5 font-semibold rounded-full text-black">
                                     {/* <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-200 text-black`}>
                                                     
                                                 </span> */}
-                                    <CgDetailsMore size={20} onClick={() => { }} />
+                                    <button className="text-gray-500 hover:text-gray-900 p-1 rounded-full hover:bg-gray-100 transition-colors">
+                                        <CgDetailsMore size={20} onClick={() => { }} />
+                                    </button>
+                                    
                                 </td>
                             </tr>
                         ))

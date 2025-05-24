@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { useState, createContext, useContext } from 'react';
 import {useNavigate } from 'react-router-dom';
 import {TransitionSpinner} from '../Auth/Spiner';

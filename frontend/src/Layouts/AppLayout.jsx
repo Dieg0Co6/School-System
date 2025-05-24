@@ -6,19 +6,6 @@ import Sidebar from '../Components/navegation/Sidebar';
 const AppLayout = ({ children, usuario }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // Ejemplo de datos de usuario
-  const userData = {
-    name: "María Castillo",
-    role: "Administradora",
-    initials: "MC",
-    hasNotifications: true,
-    notifications: [
-      { title: 'Nueva asistencia registrada', time: 'Hace 5 minutos' },
-      { title: 'Reporte mensual disponible', time: 'Hace 2 horas' },
-      { title: 'Actualización del sistema', time: 'Ayer' },
-    ]
-  };
-
   // Cierra la barra lateral en ventanas pequeñas cuando se hace clic fuera
   useEffect(() => {
     const handleResize = () => {
@@ -38,7 +25,7 @@ const AppLayout = ({ children, usuario }) => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navbar toggleSidebar={() => setSidebarOpen(!sidebarOpen)} userData={userData} />
+      <Navbar toggleSidebar={() => setSidebarOpen(!sidebarOpen)} usuario={usuario} />
 
       <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} usuario={usuario} />
       <main className="pt-16 pl-0 lg:pl-64 transition-all duration-300 ease-in-out">

@@ -18,7 +18,7 @@ class usuarioController {
             console.error('Error al obtener todos los usuarios:', error);
             res.status(500).send('Error al obtener todos los usuarios');
         }
-     }
+    }
 
     static async create(req, res) {
         if (!req.body) {
@@ -32,7 +32,7 @@ class usuarioController {
             return res.status(400).json({ error: result.error.format() });
         }
         try {
-            const {dni, password } = result.data;
+            const { dni, password } = result.data;
             const User = await Usuario.uno({ dni });
             if (User.length > 0) {
                 throw new Error("El dni ya existe");
@@ -63,8 +63,11 @@ class usuarioController {
         try {
             const user = await Usuario.Buscar({ email });
             const rol = await Usuario.BuscarRolxUsuario({ id_usuario: user.id_usuario });
+            const nombre_user = user.nombre && user.apellido_paterno && user.apellido_materno
+                ? `${user.nombre} ${user.apellido_paterno} ${user.apellido_materno}`
+                : null;
             const nombre_rol = rol.length > 0 ? rol[0].nombre : null;
-            const token = jwt.sign({id:user.id_usuario,email: user.email, rol: nombre_rol}, config.jwt.secret,{
+            const token = jwt.sign({ id: user.id_usuario,nombre:nombre_user, email: user.email, rol: nombre_rol }, config.jwt.secret, {
                 expiresIn: '2h'
             })
             if (!user) {
@@ -78,7 +81,7 @@ class usuarioController {
 
             // Comparar la contraseña ingresada con el hash almacenado
             const CompararPassword = await bcrypt.compare(password, newPassword);
-            const {password: _, ...publicUser} = user
+            const { password: _, ...publicUser } = user
 
             if (CompararPassword) {
                 res.cookie('access_token', token, {
@@ -86,7 +89,7 @@ class usuarioController {
                     secure: config.app.cookieSecure === 'produccion', //LA COOKIE SOLO SE PUEDE HACER EN HTTPS
                     sameSite: 'strict', //LA COOKIE SOLO SE PUEDE ACCEDER EN EL MISMO DOMINIO
                     maxAge: 1000 * 60 * 120 //LA COOKIE SOLO TENDRÁ PLAZO DE TIEMPO 2 HORAS
-                }).status(200).json({ message: "Login exitoso", publicUser, token});
+                }).status(200).json({ message: "Login exitoso", publicUser, token });
             } else {
                 res.status(401).json({ error: "Credenciales incorrectas" });
             }
@@ -97,18 +100,18 @@ class usuarioController {
     }
 
 
-    static async logout(req, res){
-        try{
+    static async logout(req, res) {
+        try {
             // Limpiar la cookie que contiene el token JWT
             res.clearCookie('access_token');
             // Puedes enviar una respuesta de éxito
             res.status(200).json({ message: "Logout exitoso" });
-        }catch(err){
+        } catch (err) {
             console.error("Error del logout del usuario:", error);
             res.status(500).send("Error del logout del usuario");
         }
     }
-    
+
 }
 
 module.exports = usuarioController;

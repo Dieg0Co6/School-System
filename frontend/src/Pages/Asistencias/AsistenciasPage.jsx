@@ -150,7 +150,7 @@ export default function AsistenciaPage({ usuario }) {
         <AppLayout usuario={usuario}>
             <div className="w-full p-6 bg-white rounded-lg shadow-sm">
                 {/* Cabecera */}
-                <div className="mb-8 flex justify-between items-center">
+                <div className="mb-3 flex justify-between items-center">
                     <div>
                         <h1 className="text-2xl font-bold text-gray-800 mb-2">Gestión de Asistencias</h1>
                         <p className="text-gray-600">Administra información de todas las asistencias registradas en el sistema</p>
