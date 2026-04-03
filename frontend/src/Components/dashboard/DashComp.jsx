@@ -1,5 +1,5 @@
 import AppLayout from '../../Layouts/AppLayout';
-/* import "bootstrap/dist/css/bootstrap.min.css"; */
+
 
 function DashComp({ usuario }) {
 

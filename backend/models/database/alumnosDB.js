@@ -2,11 +2,18 @@ const conexion = require("./mysql");
 const usuarioDB = require("./usuariosDB");
 
 class Alumno {
-    static async todos() {
+    static async todos(id_usuario) {
         try {
             const conn = await conexion;
-            const [results] = await conn.query(`SELECT * FROM alumno INNER JOIN usuarios ON alumno.id_usuario = usuarios.id_usuario WHERE usuarios.estado = 1 order by id_alumno desc`);
-            return results;
+            const rol = await usuarioDB.BuscarRolxUsuario(id_usuario)
+            const nombreRol = rol[0]?.nombre; // Usa el nombre de la columna que contiene el rol
+            if(nombreRol === 'ADMINISTRADOR') {
+                const [results] = await conn.query(`SELECT * FROM alumno INNER JOIN usuarios ON alumno.id_usuario = usuarios.id_usuario WHERE usuarios.estado = 1 order by id_alumno desc`);
+                return results;
+            }else if(nombreRol === 'DOCENTE') {
+                const [results] = await conn.query(`SELECT * FROM alumno INNER JOIN usuarios ON alumno.id_usuario = usuarios.id_usuario WHERE usuarios.estado = 1 order by id_alumno desc`);
+                return results;
+            }
         } catch (error) {
             throw new Error(`Error al obtener todos los alumnos: ${error.message}`);
         }

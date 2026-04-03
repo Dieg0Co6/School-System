@@ -11,8 +11,13 @@ const conexion = require('../models/database/mysql');
 class alumnoController {
     static async getAll(req, res) {
         try {
-            const alumnos = await Alumno.todos();
-            res.json(alumnos); // Devuelve los alumnos como JSON
+            const { id_usuario} = req.params;
+            const alumnos = await Alumno.todos({ id_usuario });
+            if (alumnos.length === 0) {
+                return res.status(404).json({ error: 'No se encontraron alumnos' });
+            }
+            // Si se encontraron alumnos, los devolvemos
+            res.status(200).json(alumnos); // Devuelve los alumnos como JSON
         } catch (error) {
             console.error('Error al obtener todos los alumnos:', error);
             res.status(500).send('Error al obtener todos los alumnos');

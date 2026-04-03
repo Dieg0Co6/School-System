@@ -60,6 +60,37 @@ class asistenciasController{
             res.status(500).json({ error: error.message });
         }
     }
+
+    static async getAlumnos(req, res) {
+        const { id_curso, ciclo_academico } = req.query;
+        try {
+            const alumnos = await Asistencia.AlumnosxCurso(id_curso, ciclo_academico);
+            if (!alumnos.length) {
+                return res.status(404).json({ mensaje: 'No se encontraron alumnos' });
+            }
+            res.status(200).json({message: 'Alumnos encontrados', data: alumnos });
+        } catch (error) {
+            res.status(500).json({ error: error.message });
+        }
+    }
+
+    static async registrarAsistencia(req, res) {
+        const { id_curso, id_alumno, fecha, estado } = req.body;
+
+        if (!id_curso || !id_alumno || !fecha || !estado) {
+            return res.status(400).json({ error: 'Todos los campos son obligatorios' });
+        }
+
+        try {
+            // Aquí deberías implementar la lógica para registrar la asistencia en la base de datos
+            // Por ejemplo, podrías llamar a un método en tu modelo Asistencia para insertar el registro
+
+            // Simulación de inserción exitosa
+            res.status(201).json({ message: 'Asistencia registrada correctamente' });
+        } catch (error) {
+            res.status(500).json({ error: error.message });
+        }
+    }
 }
 
 module.exports = asistenciasController;

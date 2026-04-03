@@ -34,7 +34,7 @@ export default function AlumnoPage({ usuario }) {
     // Obtener datos de alumnos
     useEffect(() => {
         setLoading(true);
-        axios.get("http://localhost:4000/alumnos")
+        axios.get(`http://localhost:4000/alumnos/${usuario.id}`)
             .then((response) => {
                 setAlumnos(response.data);
                 setLoading(false);
@@ -43,11 +43,11 @@ export default function AlumnoPage({ usuario }) {
                 console.error("Error al obtener los alumnos", err);
                 setLoading(false);
             });
-    }, []);
+    }, [usuario.id]);
 
     const actualizarAlumnos = () => {
         setLoading(true);
-        axios.get("http://localhost:4000/alumnos")
+        axios.get(`http://localhost:4000/alumnos/${usuario.id}`)
             .then((response) => {
                 setAlumnos(response.data);
                 setLoading(false);

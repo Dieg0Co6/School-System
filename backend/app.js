@@ -5,6 +5,8 @@ const middlewareCors = require('./middleware/cors')
 const AlumnoRouter = require('./routes/alumnosRoutes')
 const DocenteRouter = require('./routes/docentesRoutes')
 const AsistenciaRouter = require('./routes/asistenciasRoutes')
+const MatriculaRouter = require('./routes/matriculaRoutes')
+const CursosAsignadosRouter = require("./routes/cursosAsignadosRoutes")
 const cookieParser = require('cookie-parser')
 const userController = require('./controllers/usuariosController')
 const authMiddleware = require('./middleware/cookies');
@@ -50,3 +52,9 @@ app.use('/usuarios', UserRouter)
 
 //Configuración de las Rutas Asistencias con el servidor
 app.use('/asistencias', AsistenciaRouter)
+
+//Configuración de las Rutas Asistencias con el servidor
+app.use('/cursosasignados', CursosAsignadosRouter)
+
+//Configuración de las Rutas Matriculas con el servidor
+app.use('/matriculas', MatriculaRouter)

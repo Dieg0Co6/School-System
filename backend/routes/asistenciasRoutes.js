@@ -10,4 +10,6 @@ AsistenciaRouter.get('/especialidades', asistenciasController.getEspecialidad);
 
 AsistenciaRouter.get('/filtro/facultad-especialidad', asistenciasController.FilterFacultadEspecialidad);
 
+AsistenciaRouter.get('/alumnos', asistenciasController.getAlumnos);
+
 module.exports = AsistenciaRouter

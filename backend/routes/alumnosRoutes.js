@@ -7,7 +7,7 @@ const AlumnoRouter = Router()
 AlumnoRouter.get('/especialidades', alumnoController.getEspecialidad)
 
 //ROUTE PARA TODOS LOS ALUMNOS
-AlumnoRouter.get('/', alumnoController.getAll)
+AlumnoRouter.get('/:id_usuario', alumnoController.getAll)
 
 //ROUTE PARA UN ALUMNO
 AlumnoRouter.get('/:dni', alumnoController.getById)
